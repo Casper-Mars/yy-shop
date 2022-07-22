@@ -79,3 +79,11 @@ help:
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
 .DEFAULT_GOAL := help
+
+.PHONY: set-env
+set-env:
+	docker-compose -f docker-compose.yaml up -d
+
+.PHONY: clean-env
+clean-env:
+	docker-compose -f docker-compose.yaml down

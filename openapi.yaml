@@ -3,15 +3,51 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
-    description: The greeting service definition.
+    title: ""
     version: 0.0.1
 paths:
+    /account/login:
+        post:
+            tags:
+                - Account
+            description: 登陆
+            operationId: Account_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/account.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/account.v1.LoginResponse'
+    /account/register:
+        post:
+            tags:
+                - Account
+            description: 注册
+            operationId: Account_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/account.v1.RegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/account.v1.RegisterResponse'
     /helloworld/{name}:
         get:
             tags:
                 - Greeter
-                - subgroup
             description: Sends a greeting
             operationId: Greeter_SayHello
             parameters:
@@ -29,6 +65,28 @@ paths:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
 components:
     schemas:
+        account.v1.LoginRequest:
+            type: object
+            properties:
+                phone:
+                    type: string
+                password:
+                    type: string
+        account.v1.LoginResponse:
+            type: object
+            properties:
+                token:
+                    type: string
+        account.v1.RegisterRequest:
+            type: object
+            properties:
+                phone:
+                    type: string
+                password:
+                    type: string
+        account.v1.RegisterResponse:
+            type: object
+            properties: {}
         helloworld.v1.HelloReply:
             type: object
             properties:
@@ -36,4 +94,6 @@ components:
                     type: string
             description: The response message containing the greetings
 tags:
+    - name: Account
     - name: Greeter
+      description: The greeting service definition.

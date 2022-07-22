@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package account.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "yy-shop/api/account/v1;v1";
+
+
+service Account {
+    // 登陆
+    rpc Login (LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/account/login"
+            body: "*"
+        };
+    }
+    // 注册
+    rpc Register (RegisterRequest) returns (RegisterResponse) {
+        option (google.api.http) = {
+            post: "/account/register"
+            body: "*"
+        };
+    }
+}
+
+message LoginRequest {
+    string phone = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string token = 1;
+}
+
+message RegisterRequest {
+    string phone = 1;
+    string password = 2;
+}
+
+message RegisterResponse {
+}
