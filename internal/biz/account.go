@@ -54,7 +54,7 @@ func NewAccountUseCase(logger log.Logger, userRepo UserRepo, encryptService Encr
 //Register 注册
 func (a *AccountUseCase) Register(ctx context.Context, username, pwd string) (err error) {
 	// 校验参数
-	if username != "" || pwd != "" {
+	if username == "" || pwd == "" {
 		return fmt.Errorf("注册失败：%w", ErrRegisterParamEmpty)
 	}
 	// 加密密码
