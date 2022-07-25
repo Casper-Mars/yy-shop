@@ -3,7 +3,7 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: Account API
     version: 0.0.1
 paths:
     /account/login:
@@ -44,25 +44,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/account.v1.RegisterResponse'
-    /helloworld/{name}:
-        get:
-            tags:
-                - Greeter
-            description: Sends a greeting
-            operationId: Greeter_SayHello
-            parameters:
-                - name: name
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
 components:
     schemas:
         account.v1.LoginRequest:
@@ -87,13 +68,5 @@ components:
         account.v1.RegisterResponse:
             type: object
             properties: {}
-        helloworld.v1.HelloReply:
-            type: object
-            properties:
-                message:
-                    type: string
-            description: The response message containing the greetings
 tags:
     - name: Account
-    - name: Greeter
-      description: The greeting service definition.
