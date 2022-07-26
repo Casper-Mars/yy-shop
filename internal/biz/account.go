@@ -5,11 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/golang-jwt/jwt/v4"
+	"time"
+	"yy-shop/internal/conf"
 )
 
 var (
 	ErrRegisterParamEmpty = errors.New("用户名或者密码不能为空")
 	ErrUserNotExist       = errors.New("用户不存在")
+	ErrPasswordWrong      = errors.New("密码错误")
 )
 
 type User struct {
@@ -20,18 +24,6 @@ type User struct {
 	Avatar   string // 头像
 }
 
-//CheckPassword 校验密码是否正确
-func (u *User) CheckPassword(ctx context.Context, pwd string, encryptService EncryptService) (valid bool) {
-	encrypt, err := encryptService.Encrypt(ctx, []byte(pwd))
-	if err != nil {
-		return false
-	}
-	if u.Password != string(encrypt) {
-		return false
-	}
-	return true
-}
-
 type UserRepo interface {
 	// FetchByUsername 获取指定用户名的用户的信息，如果用户不存在，则返回 ErrUserNotExist。
 	FetchByUsername(ctx context.Context, username string) (user *User, err error)
@@ -40,17 +32,19 @@ type UserRepo interface {
 }
 
 type AccountUseCase struct {
+	authConfig     *conf.Auth
 	encryptService EncryptService
 	userRepo       UserRepo
 	logger         *log.Helper
 }
 
 //NewAccountUseCase 创建一个AccountUseCase，依赖作为参数传入
-func NewAccountUseCase(logger log.Logger, userRepo UserRepo, encryptService EncryptService) *AccountUseCase {
+func NewAccountUseCase(logger log.Logger, authConfig *conf.Bootstrap, userRepo UserRepo, encryptService EncryptService) *AccountUseCase {
 	return &AccountUseCase{
 		encryptService: encryptService,
 		userRepo:       userRepo,
 		logger:         log.NewHelper(logger),
+		authConfig:     authConfig.Auth,
 	}
 }
 
@@ -83,4 +77,35 @@ func (a *AccountUseCase) Register(ctx context.Context, username, pwd string) (er
 		return fmt.Errorf("注册失败：%w", err)
 	}
 	return nil
+}
+
+//Login 登录，认证成功返回token，认证失败返回错误
+func (a *AccountUseCase) Login(ctx context.Context, username, password string) (token string, err error) {
+	// 校验参数
+	if username == "" || password == "" {
+		return "", fmt.Errorf("登录失败：%w", ErrRegisterParamEmpty)
+	}
+	// 获取用户信息
+	user, err := a.userRepo.FetchByUsername(ctx, username)
+	if err != nil {
+		return "", fmt.Errorf("登录失败：%w", err)
+	}
+	// 校验密码
+	encrypt, err := a.encryptService.Encrypt(ctx, []byte(password))
+	if err != nil {
+		return "", fmt.Errorf("登录失败:%w", err)
+	}
+	if user.Password != string(encrypt) {
+		return "", fmt.Errorf("登录失败:%w", ErrPasswordWrong)
+	}
+	// 生成token
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.authConfig.GetExpireDuration().AsDuration())), // 设置token的过期时间
+	})
+	token, err = claims.SignedString([]byte(a.authConfig.GetJwtSecret()))
+	if err != nil {
+		a.logger.Errorf("登录失败，生成token失败：%v", err)
+		return "", fmt.Errorf("登录失败")
+	}
+	return token, nil
 }

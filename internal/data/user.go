@@ -21,9 +21,9 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (u *userRepo) Fetch(ctx context.Context, id int64) (*biz.User, error) {
-	user := &biz.User{}
-	u.table.WithContext(ctx).First(user, id)
+func (u *userRepo) FetchByUsername(ctx context.Context, username string) (user *biz.User, err error) {
+	user = &biz.User{}
+	u.table.WithContext(ctx).First(user, "username = ?", username)
 	if user.ID == 0 {
 		return nil, biz.ErrUserNotExist
 	}

@@ -22,8 +22,13 @@ func NewAccountService(logger log.Logger, auc *biz.AccountUseCase) v1.AccountSer
 }
 
 func (a *accountService) Login(ctx context.Context, request *v1.LoginRequest) (*v1.LoginResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	token, err := a.auc.Login(ctx, request.GetPhone(), request.GetPassword())
+	if err != nil {
+		return nil, errors.New(500, "登录失败", err.Error())
+	}
+	return &v1.LoginResponse{
+		Token: token,
+	}, nil
 }
 
 func (a *accountService) Register(ctx context.Context, request *v1.RegisterRequest) (*v1.RegisterResponse, error) {
