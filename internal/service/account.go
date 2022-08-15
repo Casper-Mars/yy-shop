@@ -22,7 +22,11 @@ func NewAccountService(logger log.Logger, auc *biz.AccountUseCase) v1.AccountSer
 }
 
 func (a *accountService) Login(ctx context.Context, request *v1.LoginRequest) (*v1.LoginResponse, error) {
-	token, err := a.auc.Login(ctx, request.GetPhone(), request.GetPassword())
+	loginRequest, err := biz.NewLoginRequest(request.GetPhone(), request.GetPassword())
+	if err != nil {
+		return nil, errors.New(500, "登录失败", err.Error())
+	}
+	token, err := a.auc.Login(ctx, loginRequest)
 	if err != nil {
 		return nil, errors.New(500, "登录失败", err.Error())
 	}

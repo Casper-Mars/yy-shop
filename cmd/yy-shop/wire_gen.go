@@ -25,7 +25,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, bootstrap *conf.Boots
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
-	encryptService := biz.NewEncryptService()
+	encryptService := biz.NewEncryptService(bootstrap)
 	accountUseCase := biz.NewAccountUseCase(logger, bootstrap, userRepo, encryptService)
 	accountServer := service.NewAccountService(logger, accountUseCase)
 	grpcServer := server.NewGRPCServer(confServer, logger, accountServer)
