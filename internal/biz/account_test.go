@@ -1,6 +1,8 @@
 package biz
 
 import (
+	"context"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -44,4 +46,49 @@ func TestNewLoginRequest(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestUser_CheckAuth(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+	encryptService := NewMockEncryptService(controller)
+	data := []struct {
+		name     string
+		initFunc func()
+		wantErr  error
+		password string
+		user     User
+	}{
+		{
+			name: "密码正确",
+			initFunc: func() {
+				encryptService.EXPECT().Encrypt(gomock.Any(), gomock.Any()).Return([]byte("123"), nil).Times(1)
+			},
+			wantErr:  nil,
+			password: "123",
+			user: User{
+				Password: "123",
+			},
+		},
+		{
+			name: "密码错误",
+			initFunc: func() {
+				encryptService.EXPECT().Encrypt(gomock.Any(), gomock.Any()).Return([]byte("123"), nil).Times(1)
+			},
+			wantErr:  ErrPasswordWrong,
+			password: "123",
+			user: User{
+				Password: "1233",
+			},
+		},
+	}
+
+	for _, item := range data {
+		t.Run(item.name, func(t *testing.T) {
+			item.initFunc()
+			err := item.user.CheckAuth(context.Background(), item.password, encryptService)
+			assert.Equal(t, item.wantErr, err)
+		})
+	}
+
 }

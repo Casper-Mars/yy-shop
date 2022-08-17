@@ -47,10 +47,10 @@ func (u *User) CheckAuth(ctx context.Context, password string, encryptService En
 	// 校验密码
 	encrypt, err := encryptService.Encrypt(ctx, []byte(password))
 	if err != nil {
-		return fmt.Errorf("登录失败:%w", err)
+		return err
 	}
 	if u.Password != string(encrypt) {
-		return fmt.Errorf("登录失败:%w", ErrPasswordWrong)
+		return ErrPasswordWrong
 	}
 	return nil
 }
