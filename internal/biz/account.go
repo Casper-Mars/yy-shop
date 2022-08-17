@@ -14,6 +14,7 @@ var (
 	ErrMissingPassword    = errors.New("密码不能为空")
 	ErrUserNotExist       = errors.New("用户不存在")
 	ErrPasswordWrong      = errors.New("密码错误")
+	ErrLoginFail          = errors.New("登陆失败")
 )
 
 type LoginRequest struct {
@@ -126,7 +127,7 @@ func (a *AccountUseCase) Login(ctx context.Context, loginReq *LoginRequest) (tok
 	token, err = a.encryptService.Token(ctx, user)
 	if err != nil {
 		a.logger.Errorf("登录失败，生成token失败：%v", err)
-		return "", fmt.Errorf("登录失败")
+		return "", ErrLoginFail
 	}
 	return token, nil
 }
