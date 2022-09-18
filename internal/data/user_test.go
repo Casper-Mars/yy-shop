@@ -43,7 +43,7 @@ func TestUserRepo_Fetch(t *testing.T) {
 	}
 	defer f()
 	repo := NewUserRepo(data, logger)
-	fetch, err := repo.Fetch(context.Background(), 1)
+	fetch, err := repo.FetchByUsername(context.Background(), "aaa")
 	if err != nil {
 		t.Fatal(err)
 	}
