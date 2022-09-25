@@ -21,7 +21,7 @@ service Product {
 message SearchItemRequest {
     string name = 1;
     string page_token = 2; // 分页token 第一页为空
-    string page_size = 3; // 分页大小
+    uint32 page_size = 3; // 分页大小
 }
 
 message SearchItemResponse {
@@ -34,7 +34,7 @@ message Item {
     message UserInfo {
         uint32 uid = 1;       // 卖家id
         string nick_name = 2; // 卖家昵称
-        string avatar = 3;   // 用户头像
+        string avatar = 3;   // 卖家头像
     }
     // 商品信息
     message ItemInfo {
@@ -45,4 +45,5 @@ message Item {
     }
     UserInfo user_info = 1;
     ItemInfo item_info = 2;
+    uint32 bookCnt = 3;  // 想要的人数
 }
