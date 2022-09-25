@@ -22,13 +22,7 @@ service Account {
             body: "*"
         };
     }
-    // 商品搜索
-    rpc SearchItem (SearchItemRequest) returns (SearchItemResponse) {
-        option (google.api.http) = {
-            post: "/account/searchItem"
-            body: "*"
-        };
-    }
+
 }
 
 message LoginRequest {
@@ -48,32 +42,3 @@ message RegisterRequest {
 message RegisterResponse {
 }
 
-
-message SearchItemRequest {
-    string name = 1;
-    string page_token = 2; // 分页token 第一页为空
-    string page_size = 3; // 分页大小
-}
-
-message SearchItemResponse {
-    repeated Item item_list = 1;  // 商品列表
-    string page_token = 2; // 下次分页请求带上token， token为空，分页获取完成
-}
-
-message Item {
-    // 商品所属用户信息
-    message UserInfo {
-        uint32 uid = 1;       // 卖家id
-        string nick_name = 2; // 卖家昵称
-        string avatar = 3;   // 用户头像
-    }
-    // 商品信息
-    message ItemInfo {
-        uint32 item_id = 1;  // 商品id
-        string item_name = 2;  // 商品名称
-        string item_cover = 3;  // 商品图片
-        float price = 4;      // 商品价格
-    }
-    UserInfo user_info = 1;
-    ItemInfo item_info = 2;
-}
