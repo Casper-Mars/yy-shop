@@ -62,6 +62,8 @@ type UserRepo interface {
 	FetchByUsername(ctx context.Context, username string) (user *User, err error)
 	// FetchByUid 获取指定用户名的用户的信息，如果用户不存在，则返回 ErrUserNotExist。
 	FetchByUid(ctx context.Context, uid int64) (user *User, err error)
+	// FetchByUidList 获取指定用户名的用户的信息，如果用户不存在，则返回空。
+	FetchByUidList(ctx context.Context, uidList []int64) (user []*User, err error)
 	// Save 保存用户信息并返回用户的id。
 	Save(ctx context.Context, user *User) (id int64, err error)
 }
