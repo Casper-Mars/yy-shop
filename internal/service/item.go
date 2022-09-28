@@ -98,5 +98,22 @@ func (a *itemService) initToken(ctx context.Context, itemName string, token uint
 	return pt.string()
 }
 func (a *itemService) convertItemInfo2Pb(itemInfoList []*biz.ItemInfoWithSeller) []*v1.Item {
-	return []*v1.Item{}
+	out := make([]*v1.Item, 0, len(itemInfoList))
+	for _, item := range itemInfoList {
+		i := &v1.Item{
+			UserInfo: &v1.Item_UserInfo{
+				Uid:      item.SellerID,
+				NickName: item.SellerNickName,
+				Avatar:   item.SellerAvatar,
+			},
+			ItemInfo: &v1.Item_ItemInfo{
+				ItemId:    item.ItemId,
+				ItemName:  item.ItemName,
+				ItemCover: item.IconUrl,
+				Price:     float32(item.Price),
+			},
+		}
+		out = append(out, i)
+	}
+	return out
 }
