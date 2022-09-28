@@ -29,7 +29,7 @@ func (i *itemRepo) FetchByItemName(ctx context.Context, itemName string, pageTok
 		limit = pageSize
 	}
 	out := make([]*biz.ItemInfo, 0)
-	err = i.table.WithContext(ctx).Where("item_name like ?", fmt.Sprintf("%%%s%%", itemName)).Limit(int(limit)).Offset(int(pageToken)).Find(&out).Error
+	err = i.table.WithContext(ctx).Where("id > ? and item_name like ?", pageToken, fmt.Sprintf("%%%s%%", itemName)).Limit(int(limit)).Find(&out).Error
 	if err != nil {
 		i.log.Errorf("FetchByItemName failed to Find, err:%v", err)
 		return out, err
