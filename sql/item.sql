@@ -10,5 +10,6 @@ create table item
   effect_end timestamp not null default 0 comment '下架时间',
   update_time timestamp not null default current_timestamp on update current_timestamp,
   create_time timestamp not null default current_timestamp,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `seller_id_index` (seller_id)
 ) engine = innodb default charset = utf8mb4;
