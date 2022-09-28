@@ -2,9 +2,10 @@ package data
 
 import (
 	"context"
+	"yy-shop/internal/biz"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
-	"yy-shop/internal/biz"
 )
 
 type userRepo struct {
@@ -47,14 +48,18 @@ func (u *userRepo) FetchByUid(ctx context.Context, uid int64) (user *biz.User, e
 	return user, nil
 }
 
-func (u *userRepo) FetchByUidList(ctx context.Context, uidList []int64) (user []*biz.User, err error) {
-	result := make([]*biz.User, 0, len(uidList))
+func (u *userRepo) FetchByUidList(ctx context.Context, uidList []int64) (user map[int64]*biz.User, err error) {
+	result := make(map[int64]*biz.User, len(uidList))
+	uidInfoList := make([]*biz.User, 0, len(uidList))
 	if len(uidList) == 0 {
 		return result, nil
 	}
-	err = u.table.WithContext(ctx).Where("ID in (?)", uidList).Find(&result).Error
+	err = u.table.WithContext(ctx).Where("ID in (?)", uidList).Find(&uidInfoList).Error
 	if err != nil {
 		return nil, err
+	}
+	for _, user := range uidInfoList {
+		result[user.ID] = user
 	}
 	return result, nil
 }
