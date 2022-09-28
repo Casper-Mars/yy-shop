@@ -19,17 +19,17 @@ type ItemInfoWithSeller struct {
 	ItemName       string  // 商品名称
 	Price          float64 // 价格
 	IconUrl        string  // 商品图片连接
-	bookedCnt      uint32  // 想要的人数
+	BookedCnt      uint32  // 想要的人数
 }
 
 //
 type ItemInfo struct {
-	ItemId   uint32  // 商品ID
-	ItemName string  // 商品名称
-	Price    float64 // 价格
-	IconUrl  string  // 商品图片连接
-	SellerId uint32  // 卖家id
-	BookCnt  uint32  // 想要的人数
+	ItemId    uint32  `gorm:"column:id"`         // 商品ID
+	ItemName  string  `gorm:"column:item_name"`  // 商品名称
+	IconUrl   string  `gorm:"column:icon_url"`   // 商品图片连接
+	Price     float64 `gorm:"column:price"`      // 价格
+	SellerId  uint32  `gorm:"column:seller_id"`  // 卖家id
+	BookedCnt uint32  `gorm:"column:booked_cnt"` // 想要的人数
 }
 
 type ItemRepo interface {
@@ -88,7 +88,7 @@ func (p *ProductMgr) SearchItem(ctx context.Context, itemName string, pageToken,
 			ItemName:       item.ItemName,
 			IconUrl:        item.IconUrl,
 			Price:          item.Price,
-			bookedCnt:      item.BookCnt,
+			BookedCnt:      item.BookedCnt,
 		}
 		out = append(out, itemInfo)
 	}
