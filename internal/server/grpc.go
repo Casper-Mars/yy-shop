@@ -4,7 +4,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	account_v1 "yy-shop/api/account/v1"
+	account_v1 "yy-shop/api/v1"
 	"yy-shop/internal/conf"
 )
 

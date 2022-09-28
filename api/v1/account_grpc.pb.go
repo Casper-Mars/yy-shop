@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.17.3
-// source: account/v1/account.proto
+// source: v1/account.proto
 
 package v1
 
@@ -38,7 +38,7 @@ func NewAccountClient(cc grpc.ClientConnInterface) AccountClient {
 
 func (c *accountClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
 	out := new(LoginResponse)
-	err := c.cc.Invoke(ctx, "/account.v1.Account/Login", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.Account/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *accountClient) Login(ctx context.Context, in *LoginRequest, opts ...grp
 
 func (c *accountClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
 	out := new(RegisterResponse)
-	err := c.cc.Invoke(ctx, "/account.v1.Account/Register", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.Account/Register", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func _Account_Login_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/account.v1.Account/Login",
+		FullMethod: "/api.v1.Account/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccountServer).Login(ctx, req.(*LoginRequest))
@@ -116,7 +116,7 @@ func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/account.v1.Account/Register",
+		FullMethod: "/api.v1.Account/Register",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccountServer).Register(ctx, req.(*RegisterRequest))
@@ -128,7 +128,7 @@ func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Account_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "account.v1.Account",
+	ServiceName: "api.v1.Account",
 	HandlerType: (*AccountServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -141,5 +141,5 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "account/v1/account.proto",
+	Metadata: "v1/account.proto",
 }

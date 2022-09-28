@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	v1 "yy-shop/api/product/v1"
+	v1 "yy-shop/api/v1"
 	"yy-shop/internal/biz"
 
 	"github.com/go-kratos/kratos/v2/log"

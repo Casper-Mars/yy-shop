@@ -3,7 +3,7 @@
 
 openapi: 3.0.3
 info:
-    title: Account API
+    title: ""
     version: 0.0.1
 paths:
     /account/login:
@@ -16,7 +16,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/account.v1.LoginRequest'
+                            $ref: '#/components/schemas/api.v1.LoginRequest'
                 required: true
             responses:
                 "200":
@@ -24,7 +24,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/account.v1.LoginResponse'
+                                $ref: '#/components/schemas/api.v1.LoginResponse'
     /account/register:
         post:
             tags:
@@ -35,7 +35,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/account.v1.RegisterRequest'
+                            $ref: '#/components/schemas/api.v1.RegisterRequest'
                 required: true
             responses:
                 "200":
@@ -43,30 +43,104 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/account.v1.RegisterResponse'
+                                $ref: '#/components/schemas/api.v1.RegisterResponse'
+    /product/searchItem:
+        post:
+            tags:
+                - Product
+            description: 商品搜索
+            operationId: Product_SearchItem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.v1.SearchItemRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.v1.SearchItemResponse'
 components:
     schemas:
-        account.v1.LoginRequest:
+        api.v1.Item:
+            type: object
+            properties:
+                userInfo:
+                    $ref: '#/components/schemas/api.v1.Item_UserInfo'
+                itemInfo:
+                    $ref: '#/components/schemas/api.v1.Item_ItemInfo'
+                bookCnt:
+                    type: integer
+                    format: uint32
+        api.v1.Item_ItemInfo:
+            type: object
+            properties:
+                itemId:
+                    type: integer
+                    format: uint32
+                itemName:
+                    type: string
+                itemCover:
+                    type: string
+                price:
+                    type: number
+                    format: float
+            description: 商品信息
+        api.v1.Item_UserInfo:
+            type: object
+            properties:
+                uid:
+                    type: integer
+                    format: uint32
+                nickName:
+                    type: string
+                avatar:
+                    type: string
+            description: 商品所属用户信息
+        api.v1.LoginRequest:
             type: object
             properties:
                 phone:
                     type: string
                 password:
                     type: string
-        account.v1.LoginResponse:
+        api.v1.LoginResponse:
             type: object
             properties:
                 token:
                     type: string
-        account.v1.RegisterRequest:
+        api.v1.RegisterRequest:
             type: object
             properties:
                 phone:
                     type: string
                 password:
                     type: string
-        account.v1.RegisterResponse:
+        api.v1.RegisterResponse:
             type: object
             properties: {}
+        api.v1.SearchItemRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                pageToken:
+                    type: string
+                pageSize:
+                    type: integer
+                    format: uint32
+        api.v1.SearchItemResponse:
+            type: object
+            properties:
+                itemList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.v1.Item'
+                pageToken:
+                    type: string
 tags:
     - name: Account
+    - name: Product

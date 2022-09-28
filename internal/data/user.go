@@ -37,3 +37,24 @@ func (u *userRepo) Save(ctx context.Context, user *biz.User) (id int64, err erro
 	}
 	return user.ID, nil
 }
+
+func (u *userRepo) FetchByUid(ctx context.Context, uid int64) (user *biz.User, err error) {
+	user = &biz.User{}
+	u.table.WithContext(ctx).First(user, "ID = ?", uid)
+	if user.ID == 0 {
+		return nil, biz.ErrUserNotExist
+	}
+	return user, nil
+}
+
+func (u *userRepo) FetchByUidList(ctx context.Context, uidList []int64) (user []*biz.User, err error) {
+	result := make([]*biz.User, 0, len(uidList))
+	if len(uidList) == 0 {
+		return result, nil
+	}
+	err = u.table.WithContext(ctx).Where("ID in (?)", uidList).Find(&result).Error
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}

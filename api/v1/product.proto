@@ -1,17 +1,17 @@
 syntax = "proto3";
 
-package account.v1;
+package api.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "yy-shop/api/product/v1;v1";
+option go_package = "yy-shop/api/v1;v1";
 
 
 service Product {
     // 商品搜索
     rpc SearchItem (SearchItemRequest) returns (SearchItemResponse) {
         option (google.api.http) = {
-            post: "/account/searchItem"
+            post: "/product/searchItem"
             body: "*"
         };
     }
