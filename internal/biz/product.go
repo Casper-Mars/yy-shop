@@ -28,7 +28,8 @@ type ItemInfo struct {
 	ItemName string  // 商品名称
 	Price    float64 // 价格
 	IconUrl  string  // 商品图片连接
-	sellerId uint32  // 卖家id
+	SellerId uint32  // 卖家id
+	BookCnt  uint32  // 想要的人数
 }
 
 type ProductRepo interface {
@@ -69,26 +70,25 @@ func (p *ProductMgr) SearchItem(ctx context.Context, itemName string, pageToken,
 		log.Errorf("SearchItem item do not exist, itemName:%s", itemName)
 		return out, ErrItemNotExist
 	}
+	uidList := make([]int64, 0, len(itemInfoList))
 	for _, item := range itemInfoList {
-		user, err := p.userRepo.FetchByUid(ctx, int64(item.sellerId))
+		uidList = append(uidList, int64(item.SellerId))
+	}
+	for _, item := range itemInfoList {
+		userMap, err := p.userRepo.FetchByUidList(ctx, uidList)
 		if err != nil {
 			p.logger.Errorf("SearchItem failed to FetchByUsername, err", err)
 			return out, err
 		}
-		bookCnt, err := p.productCache.GetItemBookCnt(ctx, item.ItemId)
-		if err != nil {
-			// 获取失败默认为0
-			p.logger.Errorf("SearchItem failed to GetItemBookCnt, err:%v", err)
-		}
 		itemInfo := &ItemInfoWithSeller{
-			SellerID:       uint32(user.ID),
-			SellerAvatar:   user.Avatar,
-			SellerNickName: user.Nickname,
+			SellerID:       uint32(item.SellerId),
+			SellerAvatar:   userMap[int64(item.SellerId)].Avatar,
+			SellerNickName: userMap[int64(item.SellerId)].Nickname,
 			ItemId:         item.ItemId,
 			ItemName:       item.ItemName,
 			IconUrl:        item.IconUrl,
 			Price:          item.Price,
-			bookedCnt:      bookCnt,
+			bookedCnt:      item.BookCnt,
 		}
 		out = append(out, itemInfo)
 	}
