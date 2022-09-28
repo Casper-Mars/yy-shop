@@ -24,8 +24,12 @@ func NewItemRepo(data *Data, logger log.Logger) biz.ItemRepo {
 }
 
 func (i *itemRepo) FetchByItemName(ctx context.Context, itemName string, pageToken, pageSize uint32) (itemInfoList []*biz.ItemInfo, err error) {
-	out := make([]*biz.ItemInfo, 0, 5)
-	err = i.table.WithContext(ctx).Where("item_name like ?", fmt.Sprintf("%%%s%%", itemName)).Find(&out).Error
+	limit := uint32(30)
+	if pageSize < 30 {
+		limit = pageSize
+	}
+	out := make([]*biz.ItemInfo, 0)
+	err = i.table.WithContext(ctx).Where("item_name like ?", fmt.Sprintf("%%%s%%", itemName)).Limit(int(limit)).Offset(int(pageToken)).Find(&out).Error
 	if err != nil {
 		i.log.Errorf("FetchByItemName failed to Find, err:%v", err)
 		return out, err

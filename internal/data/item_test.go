@@ -22,7 +22,7 @@ func Test_itemRepo_FetchByItemName(t *testing.T) {
 	}
 	defer f()
 	repo := NewItemRepo(data, logger)
-	fetch, err := repo.FetchByItemName(context.Background(), "o", 0, 0)
+	fetch, err := repo.FetchByItemName(context.Background(), "o", 2, 2)
 	if err != nil {
 		t.Fatal(err)
 	}
