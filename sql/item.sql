@@ -1,4 +1,3 @@
-use test;
 create table item
 (
   id int(10) unsigned not null auto_increment,
@@ -13,5 +12,3 @@ create table item
   create_time timestamp not null default current_timestamp,
   PRIMARY KEY (id)
 ) engine = innodb default charset = utf8mb4;
-
-insert into item(name, icon_url, price, effect_begin, effect_end) values ("手机", "www.fwe.jpg", 1999.00, "2022-09-25 21:17:45", "2022-09-25 21:17:45");
