@@ -32,7 +32,7 @@ type ItemInfo struct {
 	BookCnt  uint32  // 想要的人数
 }
 
-type ProductRepo interface {
+type ItemRepo interface {
 	// FetchByUsername 获取指定用户名的用户的信息，如果用户不存在，则返回 ErrUserNotExist。
 	FetchByItemName(ctx context.Context, itemName string, pageToken, pageSize uint32) (itemInfoList []*ItemInfo, err error)
 }
@@ -43,13 +43,13 @@ type ProductCache interface {
 
 type ProductMgr struct {
 	userRepo     UserRepo
-	producctRepo ProductRepo
+	producctRepo ItemRepo
 	productCache ProductCache
 	logger       *log.Helper
 }
 
 //NewAccountUseCase 创建一个AccountUseCase，依赖作为参数传入
-func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ProductRepo, prodcutCache ProductCache) *ProductMgr {
+func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo, prodcutCache ProductCache) *ProductMgr {
 	return &ProductMgr{
 		userRepo:     userRepo,
 		producctRepo: producctRepo,
