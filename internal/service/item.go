@@ -47,8 +47,9 @@ func NewProductServer(logger log.Logger, productMgr *biz.ProductMgr) v1.ProductS
 
 func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequest) (*v1.SearchItemResponse, error) {
 	out := &v1.SearchItemResponse{}
-	token := a.parseToken(ctx, request.GetPageToken())
-	if token.ItemName != request.Name {
+	tokenStr := request.GetPageToken()
+	token := a.parseToken(ctx, tokenStr)
+	if tokenStr != "" && token.ItemName != request.Name {
 		log.Errorf("SearchItem failed, err:%v", ErrTokenInvalid)
 		return out, ErrTokenInvalid
 	}
