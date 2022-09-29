@@ -38,22 +38,20 @@ type ItemRepo interface {
 }
 
 type ProductCache interface {
-	GetItemBookCnt(ctx context.Context, itemId uint32) (uint32, error)
 }
 
 type ProductMgr struct {
 	userRepo     UserRepo
 	producctRepo ItemRepo
-	productCache ProductCache
-	logger       *log.Helper
+
+	logger *log.Helper
 }
 
 //NewAccountUseCase 创建一个AccountUseCase，依赖作为参数传入
-func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo, prodcutCache ProductCache) *ProductMgr {
+func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo) *ProductMgr {
 	return &ProductMgr{
 		userRepo:     userRepo,
 		producctRepo: producctRepo,
-		productCache: prodcutCache,
 		logger:       log.NewHelper(logger),
 	}
 }
@@ -80,10 +78,14 @@ func (p *ProductMgr) SearchItem(ctx context.Context, itemName string, pageToken,
 			p.logger.Errorf("SearchItem failed to FetchByUsername, err", err)
 			return out, err
 		}
+		userInfo := userMap[int64(item.SellerId)]
+		if userInfo == nil {
+			continue
+		}
 		itemInfo := &ItemInfoWithSeller{
 			SellerID:       uint32(item.SellerId),
-			SellerAvatar:   userMap[int64(item.SellerId)].Avatar,
-			SellerNickName: userMap[int64(item.SellerId)].Nickname,
+			SellerAvatar:   userInfo.Avatar,
+			SellerNickName: userInfo.Nickname,
 			ItemId:         item.ItemId,
 			ItemName:       item.ItemName,
 			IconUrl:        item.IconUrl,
