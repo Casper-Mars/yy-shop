@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	v1 "yy-shop/api/v1"
 	"yy-shop/internal/biz"
 
@@ -15,6 +16,10 @@ type itemService struct {
 	log        *log.Helper
 	productMgr *biz.ProductMgr
 }
+
+var (
+	ErrTokenInvalid = errors.New("Token异常")
+)
 
 type pageToken struct {
 	TokenID  uint32 `json:"token_id"`  // 已获取的最大id
@@ -42,9 +47,12 @@ func NewProductServer(logger log.Logger, productMgr *biz.ProductMgr) v1.ProductS
 
 func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequest) (*v1.SearchItemResponse, error) {
 	out := &v1.SearchItemResponse{}
-
-	itemInfoList, err := a.productMgr.SearchItem(ctx, request.GetName(), a.parseToken(ctx, request.GetPageToken()),
-		request.GetPageSize())
+	token := a.parseToken(ctx, request.GetPageToken())
+	if token.ItemName != request.Name {
+		log.Errorf("SearchItem failed, err:%v", ErrTokenInvalid)
+		return out, ErrTokenInvalid
+	}
+	itemInfoList, err := a.productMgr.SearchItem(ctx, request.GetName(), token.TokenID, request.GetPageSize())
 	itemLen := len(itemInfoList)
 	if err != nil || itemLen == 0 {
 		a.log.Errorf("SearchItem failed, request:%v, err:%v", request, err)
@@ -61,23 +69,24 @@ func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequ
 	}, nil
 }
 
-func (a *itemService) parseToken(ctx context.Context, token string) uint32 {
+func (a *itemService) parseToken(ctx context.Context, token string) *pageToken {
+	out := &pageToken{}
 	if token == "" {
-		return 0
+		return out
 	}
 
 	jsonByte, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
 		log.Errorf("DecodeString failed, err:%v", err)
-		return 0
+		return out
 	}
-	pt := &pageToken{}
-	err = json.Unmarshal(jsonByte, pt)
+
+	err = json.Unmarshal(jsonByte, out)
 	if err != nil {
 		log.Errorf("Unmarshal failed, err:%v", err)
-		return 0
+		return out
 	}
-	return pt.TokenID
+	return out
 }
 
 func (a *itemService) genNewToken(ctx context.Context, itemName, token string, tokenID uint32) string {
