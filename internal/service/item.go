@@ -45,13 +45,19 @@ func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequ
 
 	itemInfoList, err := a.productMgr.SearchItem(ctx, request.GetName(), a.parseToken(ctx, request.GetPageToken()),
 		request.GetPageSize())
-	if err != nil || len(itemInfoList) == 0 {
+	itemLen := len(itemInfoList)
+	if err != nil || itemLen == 0 {
 		a.log.Errorf("SearchItem failed, request:%v, err:%v", request, err)
 		return out, err
 	}
+
+	retToken := ""
+	if itemLen == int(request.GetPageSize()) {
+		retToken = a.genNewToken(ctx, request.GetName(), request.GetPageToken(), itemInfoList[len(itemInfoList)-1].ItemId)
+	}
 	return &v1.SearchItemResponse{
 		ItemList:  a.convertItemInfo2Pb(itemInfoList),
-		PageToken: a.genNewToken(ctx, request.GetName(), request.GetPageToken(), itemInfoList[len(itemInfoList)-1].ItemId),
+		PageToken: retToken,
 	}, nil
 }
 
