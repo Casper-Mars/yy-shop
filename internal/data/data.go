@@ -1,15 +1,16 @@
 package data
 
 import (
+	"yy-shop/internal/conf"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"yy-shop/internal/conf"
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewUserRepo)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewItemRepo)
 
 // Data .
 type Data struct {

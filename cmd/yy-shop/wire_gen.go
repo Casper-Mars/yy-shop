@@ -28,8 +28,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, bootstrap *conf.Boots
 	encryptService := biz.NewEncryptService(bootstrap)
 	accountUseCase := biz.NewAccountUseCase(logger, bootstrap, userRepo, encryptService)
 	accountServer := service.NewAccountService(logger, accountUseCase)
-	grpcServer := server.NewGRPCServer(confServer, logger, accountServer)
-	httpServer := server.NewHTTPServer(confServer, accountServer, logger)
+	itemRepo := data.NewItemRepo(dataData, logger)
+	productMgr := biz.NewProductMgr(logger, userRepo, itemRepo)
+	productServer := service.NewProductServer(logger, productMgr)
+	grpcServer := server.NewGRPCServer(confServer, logger, accountServer, productServer)
+	httpServer := server.NewHTTPServer(confServer, accountServer, productServer, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()
