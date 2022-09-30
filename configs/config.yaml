@@ -13,6 +13,10 @@ data:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s
     write_timeout: 0.2s
+  elasticsearch:
+    addr:
+      - http://localhost:9200
+    timeout: 2s
 auth:
   jwt_secret: "secret"
   expire_duration: 3600s
