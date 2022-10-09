@@ -22,7 +22,7 @@ type ItemInfoWithSeller struct {
 	BookedCnt      uint32  // 想要的人数
 }
 
-//
+// ItemInfo 商品信息
 type ItemInfo struct {
 	ItemId    uint32  `gorm:"column:id"`         // 商品ID
 	ItemName  string  `gorm:"column:item_name"`  // 商品名称
@@ -33,33 +33,36 @@ type ItemInfo struct {
 }
 
 type ItemRepo interface {
-	// FetchByUsername 获取指定用户名的用户的信息，如果用户不存在，则返回 ErrUserNotExist。
+	// FetchByItemName 获取指定用户名的用户的信息，如果用户不存在，则返回 ErrUserNotExist。
 	FetchByItemName(ctx context.Context, itemName string, pageToken, pageSize uint32) (itemInfoList []*ItemInfo, err error)
+	// FetchByIds 批量获取指定id的商品信息
+	FetchByIds(ctx context.Context, ids ...uint32) (itemInfoList []*ItemInfo, err error)
 }
 
 type ProductCache interface {
 }
 
 type ProductMgr struct {
-	userRepo     UserRepo
-	producctRepo ItemRepo
-
-	logger *log.Helper
+	userRepo      UserRepo
+	itemRepo      ItemRepo
+	searchService SearchService
+	logger        *log.Helper
 }
 
 //NewAccountUseCase 创建一个AccountUseCase，依赖作为参数传入
-func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo) *ProductMgr {
+func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo, searchService SearchService) *ProductMgr {
 	return &ProductMgr{
-		userRepo:     userRepo,
-		producctRepo: producctRepo,
-		logger:       log.NewHelper(logger),
+		userRepo:      userRepo,
+		itemRepo:      producctRepo,
+		logger:        log.NewHelper(logger),
+		searchService: searchService,
 	}
 }
 
 //Register 注册
 func (p *ProductMgr) SearchItem(ctx context.Context, itemName string, pageToken, pageSize uint32) ([]*ItemInfoWithSeller, error) {
 	out := make([]*ItemInfoWithSeller, 0)
-	itemInfoList, err := p.producctRepo.FetchByItemName(ctx, itemName, pageToken, pageSize)
+	itemInfoList, err := p.itemRepo.FetchByItemName(ctx, itemName, pageToken, pageSize)
 	if err != nil {
 		p.logger.Errorf("SearchItem failed to FetchByItemName, err:%v", err)
 		return out, err
