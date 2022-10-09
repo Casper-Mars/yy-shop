@@ -37,7 +37,7 @@ func (i *itemRepo) FetchByItemName(ctx context.Context, itemName string, pageTok
 	return out, nil
 }
 
-func (i *itemRepo) FetchByIds(ctx context.Context, ids ...uint32) (itemInfoList []*biz.ItemInfo, err error) {
+func (i *itemRepo) FetchByIds(ctx context.Context, ids ...uint32) (itemInfoList biz.ItemList, err error) {
 	if len(ids) == 0 {
 		return nil, biz.ErrNoResult
 	}

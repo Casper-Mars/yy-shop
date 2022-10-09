@@ -1,10 +1,52 @@
 package biz
 
-import "context"
+import (
+	"context"
+	"encoding/base64"
+	"encoding/json"
+	"time"
+)
 
 type SearchMgr interface {
 	Search(ctx context.Context, condition SearchConditionBuilder) (ResultList, error)
 	GetConditionBuilder() SearchConditionBuilder
+	SearchByPage(ctx context.Context, condition SearchConditionBuilder, pageToken PageToken) (*PageResult, error)
+}
+
+type PageToken struct {
+	size           uint32
+	sortUpdateTime time.Time
+	sortID         uint32
+}
+
+func NewPageToken(size uint32, sortUpdateTime time.Time, sortID uint32) *PageToken {
+	return &PageToken{
+		size:           size,
+		sortUpdateTime: sortUpdateTime,
+		sortID:         sortID,
+	}
+}
+
+func (p *PageToken) String() string {
+	marshal, err := json.Marshal(p)
+	if err != nil {
+		//todo: 输出日志
+		return ""
+	}
+	return base64.StdEncoding.EncodeToString(marshal)
+}
+
+type PageResult struct {
+	result    ResultList
+	pageToken *PageToken
+}
+
+func (p *PageResult) GetResult() ResultList {
+	return p.result
+}
+
+func (p *PageResult) PageToke() *PageToken {
+	return p.pageToken
 }
 
 type ID struct {
