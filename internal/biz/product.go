@@ -9,6 +9,7 @@ import (
 
 var (
 	ErrItemNotExist = errors.New("商品名称有误")
+	ErrNoResult     = errors.New("没有搜索结果")
 )
 
 type ItemInfoWithSeller struct {
@@ -32,49 +33,54 @@ type ItemInfo struct {
 	BookedCnt uint32  `gorm:"column:booked_cnt"` // 想要的人数
 }
 
+type ItemList []*ItemInfo
+
+func (i ItemList) GetSellerIDs() []int64 {
+	if len(i) == 0 {
+		return []int64{}
+	}
+	ids := make([]int64, len(i))
+	for i, item := range i {
+		ids[i] = int64(item.SellerId)
+	}
+	return ids
+}
+
 type ItemRepo interface {
 	// FetchByItemName 获取指定用户名的用户的信息，如果用户不存在，则返回 ErrUserNotExist。
 	FetchByItemName(ctx context.Context, itemName string, pageToken, pageSize uint32) (itemInfoList []*ItemInfo, err error)
 	// FetchByIds 批量获取指定id的商品信息
-	FetchByIds(ctx context.Context, ids ...uint32) (itemInfoList []*ItemInfo, err error)
+	FetchByIds(ctx context.Context, ids ...uint32) (itemInfoList ItemList, err error)
 }
 
 type ProductCache interface {
 }
 
 type ProductMgr struct {
-	userRepo      UserRepo
-	itemRepo      ItemRepo
-	searchService SearchService
-	logger        *log.Helper
+	userRepo UserRepo
+	itemRepo ItemRepo
+	logger   *log.Helper
 }
 
-//NewAccountUseCase 创建一个AccountUseCase，依赖作为参数传入
-func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo, searchService SearchService) *ProductMgr {
+//NewProductMgr 创建一个AccountUseCase，依赖作为参数传入
+func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo) *ProductMgr {
 	return &ProductMgr{
-		userRepo:      userRepo,
-		itemRepo:      producctRepo,
-		logger:        log.NewHelper(logger),
-		searchService: searchService,
+		userRepo: userRepo,
+		itemRepo: producctRepo,
+		logger:   log.NewHelper(logger),
 	}
 }
 
-//Register 注册
-func (p *ProductMgr) SearchItem(ctx context.Context, itemName string, pageToken, pageSize uint32) ([]*ItemInfoWithSeller, error) {
+//SearchItem 搜索商品
+func (p *ProductMgr) SearchItem(ctx context.Context, ids ...uint32) ([]*ItemInfoWithSeller, error) {
+
 	out := make([]*ItemInfoWithSeller, 0)
-	itemInfoList, err := p.itemRepo.FetchByItemName(ctx, itemName, pageToken, pageSize)
+	itemInfoList, err := p.itemRepo.FetchByIds(ctx, ids...)
 	if err != nil {
 		p.logger.Errorf("SearchItem failed to FetchByItemName, err:%v", err)
-		return out, err
+		return nil, err
 	}
-	if len(itemInfoList) == 0 {
-		log.Errorf("SearchItem item do not exist, itemName:%s", itemName)
-		return out, ErrItemNotExist
-	}
-	uidList := make([]int64, 0, len(itemInfoList))
-	for _, item := range itemInfoList {
-		uidList = append(uidList, int64(item.SellerId))
-	}
+	uidList := itemInfoList.GetSellerIDs()
 	for _, item := range itemInfoList {
 		userMap, err := p.userRepo.FetchByUidList(ctx, uidList)
 		if err != nil {
@@ -86,7 +92,7 @@ func (p *ProductMgr) SearchItem(ctx context.Context, itemName string, pageToken,
 			continue
 		}
 		itemInfo := &ItemInfoWithSeller{
-			SellerID:       uint32(item.SellerId),
+			SellerID:       item.SellerId,
 			SellerAvatar:   userInfo.Avatar,
 			SellerNickName: userInfo.Nickname,
 			ItemId:         item.ItemId,

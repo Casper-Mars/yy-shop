@@ -13,8 +13,9 @@ import (
 
 type itemService struct {
 	v1.UnimplementedProductServer
-	log        *log.Helper
-	productMgr *biz.ProductMgr
+	log           *log.Helper
+	productMgr    *biz.ProductMgr
+	searchService biz.SearchMgr
 }
 
 var (
@@ -53,7 +54,9 @@ func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequ
 		log.Errorf("SearchItem failed, err:%v", ErrTokenInvalid)
 		return out, ErrTokenInvalid
 	}
-	itemInfoList, err := a.productMgr.SearchItem(ctx, request.GetName(), token.TokenID, request.GetPageSize())
+	result, err := a.searchService.Search(ctx, nil)
+	itemIDs := result.GetAllID().AsUint32()
+	itemInfoList, err := a.productMgr.SearchItem(ctx, itemIDs...)
 	itemLen := len(itemInfoList)
 	if err != nil || itemLen == 0 {
 		a.log.Errorf("SearchItem failed, request:%v, err:%v", request, err)

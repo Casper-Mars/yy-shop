@@ -2,8 +2,8 @@ package biz
 
 import "context"
 
-type SearchService interface {
-	Search(ctx context.Context, condition SearchConditionBuilder) ([]*Result, error)
+type SearchMgr interface {
+	Search(ctx context.Context, condition SearchConditionBuilder) (ResultList, error)
 	GetConditionBuilder() SearchConditionBuilder
 }
 
@@ -35,13 +35,70 @@ func (i ID) String() string {
 	return i._string
 }
 
+type IDList []*ID
+
+func (i IDList) AsInt64() []int64 {
+	if len(i) == 0 {
+		return []int64{}
+	}
+	ids := make([]int64, len(i))
+	for i, id := range i {
+		ids[i] = id.Int64()
+	}
+	return ids
+}
+
+func (i IDList) AsUint64() []uint64 {
+	if len(i) == 0 {
+		return []uint64{}
+	}
+	ids := make([]uint64, len(i))
+	for i, id := range i {
+		ids[i] = id.Uint64()
+	}
+	return ids
+}
+
+func (i IDList) AsInt32() []int32 {
+	if len(i) == 0 {
+		return []int32{}
+	}
+	ids := make([]int32, len(i))
+	for i, id := range i {
+		ids[i] = id.Int32()
+	}
+	return ids
+}
+
+func (i IDList) AsUint32() []uint32 {
+	if len(i) == 0 {
+		return []uint32{}
+	}
+	ids := make([]uint32, len(i))
+	for i, id := range i {
+		ids[i] = id.Uint32()
+	}
+	return ids
+}
+
+func (i IDList) AsString() []string {
+	if len(i) == 0 {
+		return []string{}
+	}
+	ids := make([]string, len(i))
+	for i, id := range i {
+		ids[i] = id.String()
+	}
+	return ids
+}
+
 type Result struct {
 	ID *ID
 }
 
 type ResultList []*Result
 
-func (r ResultList) GetAllID() []*ID {
+func (r ResultList) GetAllID() IDList {
 	if len(r) == 0 {
 		return []*ID{}
 	}

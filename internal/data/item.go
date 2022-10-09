@@ -36,3 +36,15 @@ func (i *itemRepo) FetchByItemName(ctx context.Context, itemName string, pageTok
 	}
 	return out, nil
 }
+
+func (i *itemRepo) FetchByIds(ctx context.Context, ids ...uint32) (itemInfoList []*biz.ItemInfo, err error) {
+	if len(ids) == 0 {
+		return nil, biz.ErrNoResult
+	}
+	err = i.table.WithContext(ctx).Where("id in (?)", ids).Find(&itemInfoList).Error
+	if err != nil {
+		i.log.Errorf("FetchByIds failed to Find, err:%v", err)
+		return nil, err
+	}
+	return
+}
