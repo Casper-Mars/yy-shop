@@ -15,7 +15,7 @@ type itemService struct {
 	v1.UnimplementedProductServer
 	log           *log.Helper
 	productMgr    *biz.ProductMgr
-	searchService biz.SearchUseCase
+	searchService *biz.EsSearchUseCase
 }
 
 var (
@@ -39,10 +39,11 @@ func (p *pageToken) string() string {
 	return base64.StdEncoding.EncodeToString(jsonByte)
 }
 
-func NewProductServer(logger log.Logger, productMgr *biz.ProductMgr) v1.ProductServer {
+func NewProductServer(logger log.Logger, searchService *biz.EsSearchUseCase, productMgr *biz.ProductMgr) v1.ProductServer {
 	return &itemService{
-		log:        log.NewHelper(logger),
-		productMgr: productMgr,
+		log:           log.NewHelper(logger),
+		productMgr:    productMgr,
+		searchService: searchService,
 	}
 }
 
@@ -55,7 +56,7 @@ func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequ
 		return out, ErrTokenInvalid
 	}
 	// 查询符合条件的商品
-	result, err := a.searchService.Search(ctx, nil)
+	result, err := a.searchService.SearchProduct(ctx, nil, nil)
 	itemIDs := result.GetAllID().AsUint32()
 	// 查询商品信息
 	itemInfoList, err := a.productMgr.SearchItem(ctx, itemIDs...)

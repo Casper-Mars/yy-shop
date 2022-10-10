@@ -4,58 +4,59 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"time"
 )
-
-type SearchUseCase interface {
-	Search(ctx context.Context, condition SearchConditionBuilder) (ResultList, error)
-	GetConditionBuilder() SearchConditionBuilder
-	SearchByPage(ctx context.Context, condition SearchConditionBuilder, pageToken PageToken) (*PageResult, error)
-}
 
 type EsSearchUseCase struct {
 	repo EsSearchRepo
 }
 
-func NewEsSearchUseCase() *EsSearchUseCase {
-	return &EsSearchUseCase{}
+func NewEsSearchUseCase(repo EsSearchRepo) *EsSearchUseCase {
+	return &EsSearchUseCase{
+		repo: repo,
+	}
 }
 
 func (e *EsSearchUseCase) SearchProduct(ctx context.Context, query map[string]interface{}, pageToken *PageToken) (*PageResult, error) {
 	if len(query) == 0 {
 		query = map[string]interface{}{
-			"match_all": map[string]interface{}{},
+			"query": map[string]interface{}{
+				"match_all": map[string]interface{}{},
+			},
 		}
 	}
-	return e.repo.SearchByPage(ctx, &EsSearchCondition{
-		Query: query,
-		Index: "product",
-	}, pageToken)
+	if len(pageToken.NextPageParam) != 0 {
+		searchAfter := make([]interface{}, 0)
+		err := json.Unmarshal([]byte(pageToken.NextPageParam), &searchAfter)
+		if err != nil {
+			//s.log.Errorf("search after param unmarshal error: %v", err)
+		} else {
+			query["search_after"] = searchAfter
+		}
+	}
+	query["size"] = pageToken.Size
+	search, err := e.repo.Search(ctx, "product", query)
+	return &PageResult{
+		Result: search,
+		NextToken: &PageToken{
+			Size:          10,
+			NextPageParam: "",
+		},
+	}, err
 }
 
 type EsSearchRepo interface {
-	Search(ctx context.Context, condition EsSearchCondition) (ResultList, error)
-	SearchByPage(ctx context.Context, condition *EsSearchCondition, pageToken *PageToken) (*PageResult, error)
+	Search(ctx context.Context, index string, query map[string]interface{}) (*Result, error)
 }
 
 type EsSearchCondition struct {
 	Query map[string]interface{}
 	Index string
+	Sort  map[string]interface{}
 }
 
 type PageToken struct {
-	Size           uint32
-	NextPageParam  string
-	sortUpdateTime time.Time
-	sortID         uint32
-}
-
-func NewPageToken(size uint32, sortUpdateTime time.Time, sortID uint32) *PageToken {
-	return &PageToken{
-		Size:           size,
-		sortUpdateTime: sortUpdateTime,
-		sortID:         sortID,
-	}
+	Size          uint32 `json:"size"`
+	NextPageParam string `json:"next_page_param"`
 }
 
 func (p *PageToken) String() string {
@@ -68,121 +69,10 @@ func (p *PageToken) String() string {
 }
 
 type PageResult struct {
-	result    ResultList
-	pageToken *PageToken
-}
-
-func (p *PageResult) GetResult() ResultList {
-	return p.result
-}
-
-func (p *PageResult) PageToke() *PageToken {
-	return p.pageToken
-}
-
-type ID struct {
-	_int64  int64
-	_uint64 uint64
-	_int32  int32
-	_uint32 uint32
-	_string string
-}
-
-func (i ID) Int64() int64 {
-	return i._int64
-}
-
-func (i ID) Uint64() uint64 {
-	return i._uint64
-}
-
-func (i ID) Int32() int32 {
-	return i._int32
-}
-
-func (i ID) Uint32() uint32 {
-	return i._uint32
-}
-
-func (i ID) String() string {
-	return i._string
-}
-
-type IDList []*ID
-
-func (i IDList) AsInt64() []int64 {
-	if len(i) == 0 {
-		return []int64{}
-	}
-	ids := make([]int64, len(i))
-	for i, id := range i {
-		ids[i] = id.Int64()
-	}
-	return ids
-}
-
-func (i IDList) AsUint64() []uint64 {
-	if len(i) == 0 {
-		return []uint64{}
-	}
-	ids := make([]uint64, len(i))
-	for i, id := range i {
-		ids[i] = id.Uint64()
-	}
-	return ids
-}
-
-func (i IDList) AsInt32() []int32 {
-	if len(i) == 0 {
-		return []int32{}
-	}
-	ids := make([]int32, len(i))
-	for i, id := range i {
-		ids[i] = id.Int32()
-	}
-	return ids
-}
-
-func (i IDList) AsUint32() []uint32 {
-	if len(i) == 0 {
-		return []uint32{}
-	}
-	ids := make([]uint32, len(i))
-	for i, id := range i {
-		ids[i] = id.Uint32()
-	}
-	return ids
-}
-
-func (i IDList) AsString() []string {
-	if len(i) == 0 {
-		return []string{}
-	}
-	ids := make([]string, len(i))
-	for i, id := range i {
-		ids[i] = id.String()
-	}
-	return ids
+	Result    *Result
+	NextToken *PageToken
 }
 
 type Result struct {
-	ID *ID
-}
-
-type ResultList []*Result
-
-func (r ResultList) GetAllID() IDList {
-	if len(r) == 0 {
-		return []*ID{}
-	}
-	ids := make([]*ID, len(r))
-	for i, result := range r {
-		ids[i] = result.ID
-	}
-	return ids
-}
-
-type SearchConditionBuilder interface {
-	SetKeyWord(keyWord string, value string) SearchConditionBuilder
-	Build() *interface{}
+	List []interface{}
 }

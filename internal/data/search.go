@@ -20,24 +20,7 @@ func NewSearchRepo(logger log.Logger, data *Data) biz.EsSearchRepo {
 	}
 }
 
-func (s *searchRepo) Search(ctx context.Context, condition biz.EsSearchCondition) (biz.ResultList, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *searchRepo) SearchByPage(ctx context.Context, condition *biz.EsSearchCondition, pageToken *biz.PageToken) (*biz.PageResult, error) {
-	query := map[string]interface{}{
-		"query": condition.Query,
-		"size":  pageToken.Size,
-		"sort": map[string]string{
-			//"update_time": "desc",
-			"id": "desc",
-		},
-	}
-	if len(pageToken.NextPageParam) != 0 {
-		query["search_after"] = pageToken.NextPageParam
-	}
-	s.log.Infof("query: %v", query)
+func (s *searchRepo) Search(ctx context.Context, index string, query map[string]interface{}) (*biz.Result, error) {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(query)
 	if err != nil {
@@ -46,7 +29,7 @@ func (s *searchRepo) SearchByPage(ctx context.Context, condition *biz.EsSearchCo
 	}
 	response, err := s.data.es.Search(
 		s.data.es.Search.WithContext(ctx),
-		s.data.es.Search.WithIndex("product"),
+		s.data.es.Search.WithIndex(index),
 		s.data.es.Search.WithBody(&buf),
 		s.data.es.Search.WithPretty(),
 	)
@@ -62,5 +45,16 @@ func (s *searchRepo) SearchByPage(ctx context.Context, condition *biz.EsSearchCo
 		return nil, err
 	}
 	s.log.Infof("response: %v", resp)
-	return nil, nil
+	hits, ok := resp["hits"].(map[string]interface{})["hits"].([]interface{})
+	if !ok {
+		s.log.Errorf("convert response error: %v", err)
+		return nil, err
+	}
+	result := &biz.Result{
+		List: make([]interface{}, 0, len(hits)),
+	}
+	for _, hit := range hits {
+		result.List = append(result.List, hit)
+	}
+	return result, nil
 }
