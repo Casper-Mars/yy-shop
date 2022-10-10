@@ -7,21 +7,52 @@ import (
 	"time"
 )
 
-type SearchMgr interface {
+type SearchUseCase interface {
 	Search(ctx context.Context, condition SearchConditionBuilder) (ResultList, error)
 	GetConditionBuilder() SearchConditionBuilder
 	SearchByPage(ctx context.Context, condition SearchConditionBuilder, pageToken PageToken) (*PageResult, error)
 }
 
+type EsSearchUseCase struct {
+	repo EsSearchRepo
+}
+
+func NewEsSearchUseCase() *EsSearchUseCase {
+	return &EsSearchUseCase{}
+}
+
+func (e *EsSearchUseCase) SearchProduct(ctx context.Context, query map[string]interface{}, pageToken *PageToken) (*PageResult, error) {
+	if len(query) == 0 {
+		query = map[string]interface{}{
+			"match_all": map[string]interface{}{},
+		}
+	}
+	return e.repo.SearchByPage(ctx, &EsSearchCondition{
+		Query: query,
+		Index: "product",
+	}, pageToken)
+}
+
+type EsSearchRepo interface {
+	Search(ctx context.Context, condition EsSearchCondition) (ResultList, error)
+	SearchByPage(ctx context.Context, condition *EsSearchCondition, pageToken *PageToken) (*PageResult, error)
+}
+
+type EsSearchCondition struct {
+	Query map[string]interface{}
+	Index string
+}
+
 type PageToken struct {
-	size           uint32
+	Size           uint32
+	NextPageParam  string
 	sortUpdateTime time.Time
 	sortID         uint32
 }
 
 func NewPageToken(size uint32, sortUpdateTime time.Time, sortID uint32) *PageToken {
 	return &PageToken{
-		size:           size,
+		Size:           size,
 		sortUpdateTime: sortUpdateTime,
 		sortID:         sortID,
 	}

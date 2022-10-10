@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-
 	"github.com/go-kratos/kratos/v2/log"
 )
 
@@ -12,7 +11,7 @@ var (
 	ErrNoResult     = errors.New("没有搜索结果")
 )
 
-type ItemInfoWithSeller struct {
+type Product struct {
 	SellerID       uint32  // 卖家ID
 	SellerAvatar   string  // 卖家头像
 	SellerNickName string  // 卖家昵称
@@ -57,9 +56,10 @@ type ProductCache interface {
 }
 
 type ProductMgr struct {
-	userRepo UserRepo
-	itemRepo ItemRepo
-	logger   *log.Helper
+	userRepo     UserRepo
+	itemRepo     ItemRepo
+	logger       *log.Helper
+	esSearchRepo EsSearchRepo
 }
 
 //NewProductMgr 创建一个AccountUseCase，依赖作为参数传入
@@ -72,14 +72,15 @@ func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo) 
 }
 
 //SearchItem 搜索商品
-func (p *ProductMgr) SearchItem(ctx context.Context, ids ...uint32) ([]*ItemInfoWithSeller, error) {
+func (p *ProductMgr) SearchItem(ctx context.Context, ids ...uint32) ([]*Product, error) {
 
-	out := make([]*ItemInfoWithSeller, 0)
+	out := make([]*Product, 0)
 	itemInfoList, err := p.itemRepo.FetchByIds(ctx, ids...)
 	if err != nil {
 		p.logger.Errorf("SearchItem failed to FetchByItemName, err:%v", err)
 		return nil, err
 	}
+	// 获取卖家信息
 	uidList := itemInfoList.GetSellerIDs()
 	for _, item := range itemInfoList {
 		userMap, err := p.userRepo.FetchByUidList(ctx, uidList)
@@ -91,7 +92,7 @@ func (p *ProductMgr) SearchItem(ctx context.Context, ids ...uint32) ([]*ItemInfo
 		if userInfo == nil {
 			continue
 		}
-		itemInfo := &ItemInfoWithSeller{
+		itemInfo := &Product{
 			SellerID:       item.SellerId,
 			SellerAvatar:   userInfo.Avatar,
 			SellerNickName: userInfo.Nickname,

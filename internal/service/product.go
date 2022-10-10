@@ -15,7 +15,7 @@ type itemService struct {
 	v1.UnimplementedProductServer
 	log           *log.Helper
 	productMgr    *biz.ProductMgr
-	searchService biz.SearchMgr
+	searchService biz.SearchUseCase
 }
 
 var (
@@ -54,8 +54,10 @@ func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequ
 		log.Errorf("SearchItem failed, err:%v", ErrTokenInvalid)
 		return out, ErrTokenInvalid
 	}
+	// 查询符合条件的商品
 	result, err := a.searchService.Search(ctx, nil)
 	itemIDs := result.GetAllID().AsUint32()
+	// 查询商品信息
 	itemInfoList, err := a.productMgr.SearchItem(ctx, itemIDs...)
 	itemLen := len(itemInfoList)
 	if err != nil || itemLen == 0 {
@@ -116,7 +118,7 @@ func (a *itemService) initToken(ctx context.Context, itemName string, token uint
 	pt := &pageToken{TokenID: token, ItemName: itemName}
 	return pt.string()
 }
-func (a *itemService) convertItemInfo2Pb(itemInfoList []*biz.ItemInfoWithSeller) []*v1.Item {
+func (a *itemService) convertItemInfo2Pb(itemInfoList []*biz.Product) []*v1.Item {
 	out := make([]*v1.Item, 0, len(itemInfoList))
 	for _, item := range itemInfoList {
 		i := &v1.Item{
