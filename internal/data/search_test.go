@@ -1,13 +1,16 @@
 package data
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"os"
 	"testing"
 	"time"
-	"yy-shop/internal/biz"
 	"yy-shop/internal/conf"
 )
 
@@ -26,17 +29,40 @@ func Test_searchRepo_SearchByPage(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer f()
-	esSearchRepo := NewSearchRepo(logger, data)
-	page, err := esSearchRepo.SearchByPage(context.Background(), &biz.EsSearchCondition{
-		Query: map[string]interface{}{
-			"match_all": map[string]interface{}{},
+	param := map[string]interface{}{
+		"doc": map[string]interface{}{
+			"price": 50,
 		},
-		Index: "product",
-	}, &biz.PageToken{
-		Size: 2,
+	}
+	bytess, err := json.Marshal(param)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(string(bytess))
+	indexer, err := esutil.NewBulkIndexer(esutil.BulkIndexerConfig{
+		Client:  data.es,
+		Index:   "product",
+		Refresh: "true",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(page)
+	reader := bytes.NewReader(bytess)
+	err = indexer.Add(context.Background(), esutil.BulkIndexerItem{
+		Action:     "update",
+		DocumentID: "1010",
+		Body:       reader,
+		OnFailure: func(ctx context.Context, item esutil.BulkIndexerItem, item2 esutil.BulkIndexerResponseItem, err error) {
+			if err != nil {
+				fmt.Println(err)
+			}
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = indexer.Close(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
 }
