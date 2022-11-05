@@ -25,7 +25,7 @@ services:
     environment:
       SWAGGER_JSON: /data/openapi.yaml
   elasticsearch:
-    image: registry.cn-hangzhou.aliyuncs.com/sonmez/es-with-ik:8.3.2
+    image: elasticsearch:8.3.2
     restart: always
     ports:
       - "9200:9200"
