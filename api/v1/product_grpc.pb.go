@@ -51,17 +51,16 @@ func (c *productClient) Search(ctx context.Context, in *SearchReq, opts ...grpc.
 }
 
 // ProductServer is the server API for Product service.
-// All implementations must embed UnimplementedProductServer
+// All implementations should embed UnimplementedProductServer
 // for forward compatibility
 type ProductServer interface {
 	// 上传商品
 	Upload(context.Context, *UploadReq) (*UploadResp, error)
 	// 商品搜索
 	Search(context.Context, *SearchReq) (*SearchResp, error)
-	mustEmbedUnimplementedProductServer()
 }
 
-// UnimplementedProductServer must be embedded to have forward compatible implementations.
+// UnimplementedProductServer should be embedded to have forward compatible implementations.
 type UnimplementedProductServer struct {
 }
 
@@ -71,7 +70,6 @@ func (UnimplementedProductServer) Upload(context.Context, *UploadReq) (*UploadRe
 func (UnimplementedProductServer) Search(context.Context, *SearchReq) (*SearchResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
-func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 
 // UnsafeProductServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to ProductServer will

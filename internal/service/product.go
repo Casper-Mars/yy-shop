@@ -12,7 +12,6 @@ import (
 )
 
 type itemService struct {
-	v1.UnimplementedProductServer
 	log           *log.Helper
 	productMgr    *biz.ProductMgr
 	searchService *biz.EsSearchUseCase
@@ -56,8 +55,8 @@ func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequ
 		return out, ErrTokenInvalid
 	}
 	// 查询符合条件的商品
-	result, err := a.searchService.SearchProduct(ctx, nil, nil)
-	itemIDs := result.GetAllID().AsUint32()
+	_, err := a.searchService.SearchProduct(ctx, nil, nil)
+	itemIDs := []uint32{}
 	// 查询商品信息
 	itemInfoList, err := a.productMgr.SearchItem(ctx, itemIDs...)
 	itemLen := len(itemInfoList)
@@ -74,6 +73,16 @@ func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequ
 		ItemList:  a.convertItemInfo2Pb(itemInfoList),
 		PageToken: retToken,
 	}, nil
+}
+
+func (a *itemService) Upload(ctx context.Context, req *v1.UploadReq) (*v1.UploadResp, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (a *itemService) Search(ctx context.Context, req *v1.SearchReq) (*v1.SearchResp, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (a *itemService) parseToken(ctx context.Context, token string) *pageToken {
@@ -121,21 +130,5 @@ func (a *itemService) initToken(ctx context.Context, itemName string, token uint
 }
 func (a *itemService) convertItemInfo2Pb(itemInfoList []*biz.Product) []*v1.Item {
 	out := make([]*v1.Item, 0, len(itemInfoList))
-	for _, item := range itemInfoList {
-		i := &v1.Item{
-			UserInfo: &v1.Item_UserInfo{
-				Uid:      item.SellerID,
-				NickName: item.SellerNickName,
-				Avatar:   item.SellerAvatar,
-			},
-			ItemInfo: &v1.Item_ItemInfo{
-				ItemId:    item.ItemId,
-				ItemName:  item.ItemName,
-				ItemCover: item.IconUrl,
-				Price:     float32(item.Price),
-			},
-		}
-		out = append(out, i)
-	}
 	return out
 }

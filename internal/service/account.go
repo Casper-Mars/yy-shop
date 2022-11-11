@@ -9,7 +9,6 @@ import (
 )
 
 type accountService struct {
-	v1.UnimplementedAccountServer
 	log *log.Helper
 	auc *biz.AccountUseCase
 }
@@ -41,4 +40,9 @@ func (a *accountService) Register(ctx context.Context, request *v1.RegisterReque
 		return nil, errors.New(500, "注册失败", err.Error())
 	}
 	return &v1.RegisterResponse{}, nil
+}
+
+func (a *accountService) Info(ctx context.Context, request *v1.InfoRequest) (*v1.InfoResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }

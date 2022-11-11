@@ -62,7 +62,7 @@ func (c *accountClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.
 }
 
 // AccountServer is the server API for Account service.
-// All implementations must embed UnimplementedAccountServer
+// All implementations should embed UnimplementedAccountServer
 // for forward compatibility
 type AccountServer interface {
 	// 登陆
@@ -71,10 +71,9 @@ type AccountServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// 获取用户信息
 	Info(context.Context, *InfoRequest) (*InfoResponse, error)
-	mustEmbedUnimplementedAccountServer()
 }
 
-// UnimplementedAccountServer must be embedded to have forward compatible implementations.
+// UnimplementedAccountServer should be embedded to have forward compatible implementations.
 type UnimplementedAccountServer struct {
 }
 
@@ -87,7 +86,6 @@ func (UnimplementedAccountServer) Register(context.Context, *RegisterRequest) (*
 func (UnimplementedAccountServer) Info(context.Context, *InfoRequest) (*InfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
-func (UnimplementedAccountServer) mustEmbedUnimplementedAccountServer() {}
 
 // UnsafeAccountServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to AccountServer will
