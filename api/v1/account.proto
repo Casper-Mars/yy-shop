@@ -22,7 +22,23 @@ service Account {
             body: "*"
         };
     }
+    // 获取用户信息
+    rpc Info (InfoRequest) returns (InfoResponse) {
+        option (google.api.http) = {
+            get: "/account/info/{id}"
+        };
+    };
+}
 
+
+message InfoRequest {
+    int64 id = 1; // 用户id
+}
+
+message InfoResponse {
+    int64 id = 1; // 用户id
+    string username = 2; // 用户名
+    string avatar = 3; // 头像
 }
 
 message LoginRequest {

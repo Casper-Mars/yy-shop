@@ -6,6 +6,26 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /account/info/{id}:
+        get:
+            tags:
+                - Account
+            description: 获取用户信息
+            operationId: Account_Info
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.v1.InfoResponse'
     /account/login:
         post:
             tags:
@@ -44,17 +64,17 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.v1.RegisterResponse'
-    /product/searchItem:
+    /product/search:
         post:
             tags:
                 - Product
             description: 商品搜索
-            operationId: Product_SearchItem
+            operationId: Product_Search
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.v1.SearchItemRequest'
+                            $ref: '#/components/schemas/api.v1.SearchReq'
                 required: true
             responses:
                 "200":
@@ -62,9 +82,38 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.v1.SearchItemResponse'
+                                $ref: '#/components/schemas/api.v1.SearchResp'
+    /product/upload:
+        post:
+            tags:
+                - Product
+            description: 上传商品
+            operationId: Product_Upload
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.v1.UploadReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.v1.UploadResp'
 components:
     schemas:
+        api.v1.InfoResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                username:
+                    type: string
+                avatar:
+                    type: string
         api.v1.Item:
             type: object
             properties:
@@ -72,18 +121,18 @@ components:
                     $ref: '#/components/schemas/api.v1.Item_UserInfo'
                 itemInfo:
                     $ref: '#/components/schemas/api.v1.Item_ItemInfo'
-                bookCnt:
+                bookedCnt:
                     type: integer
                     format: uint32
         api.v1.Item_ItemInfo:
             type: object
             properties:
-                itemId:
+                id:
                     type: integer
-                    format: uint32
-                itemName:
+                    format: int64
+                name:
                     type: string
-                itemCover:
+                cover:
                     type: string
                 price:
                     type: number
@@ -92,9 +141,9 @@ components:
         api.v1.Item_UserInfo:
             type: object
             properties:
-                uid:
+                id:
                     type: integer
-                    format: uint32
+                    format: int64
                 nickName:
                     type: string
                 avatar:
@@ -122,17 +171,17 @@ components:
         api.v1.RegisterResponse:
             type: object
             properties: {}
-        api.v1.SearchItemRequest:
+        api.v1.SearchReq:
             type: object
             properties:
-                name:
-                    type: string
                 pageToken:
                     type: string
                 pageSize:
                     type: integer
-                    format: uint32
-        api.v1.SearchItemResponse:
+                    format: int32
+                keyword:
+                    type: string
+        api.v1.SearchResp:
             type: object
             properties:
                 itemList:
@@ -141,6 +190,30 @@ components:
                         $ref: '#/components/schemas/api.v1.Item'
                 pageToken:
                     type: string
+        api.v1.UploadReq:
+            type: object
+            properties:
+                name:
+                    type: string
+                desc:
+                    type: string
+                price:
+                    type: string
+                cover:
+                    type: string
+                images:
+                    type: array
+                    items:
+                        type: string
+                uid:
+                    type: integer
+                    format: int64
+        api.v1.UploadResp:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
 tags:
     - name: Account
     - name: Product

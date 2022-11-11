@@ -8,13 +8,48 @@ option go_package = "yy-shop/api/v1;v1";
 
 
 service Product {
-    // 商品搜索
-    rpc SearchItem (SearchItemRequest) returns (SearchItemResponse) {
+    // 上传商品
+    rpc Upload (UploadReq) returns (UploadResp) {
         option (google.api.http) = {
-            post: "/product/searchItem"
+            post: "/product/upload"
             body: "*"
         };
     }
+    // 商品搜索
+    rpc Search (SearchReq) returns (SearchResp) {
+        option (google.api.http) = {
+            post: "/product/search"
+            body: "*"
+        };
+    };
+
+}
+
+
+message SearchReq {
+    string page_token = 1; // 分页token 第一页为空
+    int32 page_size = 2; // 每页数量
+    string keyword = 3; // 关键字
+}
+
+message SearchResp {
+    repeated Item item_list = 1;  // 商品列表
+    string page_token = 2; // 下次分页请求带上token， token为空，分页获取完成
+}
+
+
+
+message UploadReq {
+    string name = 1; // 商品名称
+    string desc = 2; // 商品描述
+    string price = 3; // 商品价格
+    string cover = 4; // 商品封面图片
+    repeated string images = 5; // 商品图片
+    int64 uid = 6; // 用户id
+}
+
+message UploadResp {
+    int64 id = 1; // 商品id
 }
 
 
@@ -32,18 +67,18 @@ message SearchItemResponse {
 message Item {
     // 商品所属用户信息
     message UserInfo {
-        uint32 uid = 1;       // 卖家id
+        int64 id = 1;       // 卖家id
         string nick_name = 2; // 卖家昵称
         string avatar = 3;   // 卖家头像
     }
     // 商品信息
     message ItemInfo {
-        uint32 item_id = 1;  // 商品id
-        string item_name = 2;  // 商品名称
-        string item_cover = 3;  // 商品图片
+        int64 id = 1;  // 商品id
+        string name = 2;  // 商品名称
+        string cover = 3;  // 商品图片
         float price = 4;      // 商品价格
     }
     UserInfo user_info = 1;
     ItemInfo item_info = 2;
-    uint32 bookCnt = 3;  // 想要的人数
+    uint32 booked_cnt = 3;  // 想要的人数
 }
