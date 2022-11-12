@@ -8,6 +8,11 @@ import (
 	"yy-shop/internal/conf"
 )
 
+type MyJwtClaims struct {
+	jwt.RegisteredClaims
+	Uid int64 `json:"uid"` // 用户ID
+}
+
 type EncryptService interface {
 	Encrypt(ctx context.Context, target []byte) (result []byte, err error)
 	// Token 签发token
@@ -30,8 +35,12 @@ func (e *encryptServiceImpl) Encrypt(ctx context.Context, target []byte) (result
 }
 
 func (e *encryptServiceImpl) Token(ctx context.Context, user *User) (string, error) {
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(e.authConfig.GetExpireDuration().AsDuration())), // 设置token的过期时间
-	})
+	c := &MyJwtClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(e.authConfig.GetExpireDuration().AsDuration())), // 设置token的过期时间
+		},
+		Uid: user.ID,
+	}
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 	return claims.SignedString([]byte(e.authConfig.GetJwtSecret()))
 }

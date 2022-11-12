@@ -136,3 +136,14 @@ func (a *AccountUseCase) Login(ctx context.Context, loginReq *LoginRequest) (tok
 	}
 	return token, nil
 }
+
+func (a *AccountUseCase) UserInfo(ctx context.Context, uid int64) (user *User, err error) {
+	user, err = a.userRepo.FetchByUid(ctx, uid)
+	if err != nil {
+		if errors.Is(err, ErrUserNotExist) {
+			return nil, err
+		}
+		return nil, fmt.Errorf("获取用户信息失败：%w", err)
+	}
+	return user, nil
+}

@@ -27,7 +27,7 @@ func RegisterAccountHTTPServer(s *http.Server, srv AccountHTTPServer) {
 	r := s.Route("/")
 	r.POST("/account/login", _Account_Login0_HTTP_Handler(srv))
 	r.POST("/account/register", _Account_Register0_HTTP_Handler(srv))
-	r.GET("/account/info/{id}", _Account_Info0_HTTP_Handler(srv))
+	r.GET("/account/info", _Account_Info0_HTTP_Handler(srv))
 }
 
 func _Account_Login0_HTTP_Handler(srv AccountHTTPServer) func(ctx http.Context) error {
@@ -74,9 +74,6 @@ func _Account_Info0_HTTP_Handler(srv AccountHTTPServer) func(ctx http.Context) e
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
 		http.SetOperation(ctx, "/api.v1.Account/Info")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.Info(ctx, req.(*InfoReq))
@@ -106,7 +103,7 @@ func NewAccountHTTPClient(client *http.Client) AccountHTTPClient {
 
 func (c *AccountHTTPClientImpl) Info(ctx context.Context, in *InfoReq, opts ...http.CallOption) (*InfoResp, error) {
 	var out InfoResp
-	pattern := "/account/info/{id}"
+	pattern := "/account/info"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/api.v1.Account/Info"))
 	opts = append(opts, http.PathTemplate(pattern))

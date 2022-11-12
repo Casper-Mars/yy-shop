@@ -6,19 +6,12 @@ info:
     title: ""
     version: 0.0.1
 paths:
-    /account/info/{id}:
+    /account/info:
         get:
             tags:
                 - Account
             description: 获取用户信息
             operationId: Account_Info
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: int64
             responses:
                 "200":
                     description: OK

@@ -50,4 +50,5 @@ message Data {
 message Auth {
     string jwt_secret = 1;
     google.protobuf.Duration expire_duration = 2;
+    repeated string white_list = 3;
 }

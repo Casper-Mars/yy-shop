@@ -25,14 +25,13 @@ service Account {
     // 获取用户信息
     rpc Info (InfoReq) returns (InfoResp) {
         option (google.api.http) = {
-            get: "/account/info/{id}"
+            get: "/account/info"
         };
     };
 }
 
 
 message InfoReq {
-    int64 id = 1; // 用户id
 }
 
 message InfoResp {
