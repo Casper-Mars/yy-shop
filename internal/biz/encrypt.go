@@ -10,7 +10,7 @@ import (
 
 type MyJwtClaims struct {
 	jwt.RegisteredClaims
-	Uid int64 `json:"uid"` // 用户ID
+	Uid uint32 `json:"uid"` // 用户ID
 }
 
 type EncryptService interface {

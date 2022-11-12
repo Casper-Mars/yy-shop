@@ -31,7 +31,7 @@ func (u *userRepo) FetchByUsername(ctx context.Context, username string) (user *
 	return user, nil
 }
 
-func (u *userRepo) Save(ctx context.Context, user *biz.User) (id int64, err error) {
+func (u *userRepo) Save(ctx context.Context, user *biz.User) (id uint32, err error) {
 	result := u.table.WithContext(ctx).Create(user)
 	if result.Error != nil {
 		return 0, result.Error
@@ -39,7 +39,7 @@ func (u *userRepo) Save(ctx context.Context, user *biz.User) (id int64, err erro
 	return user.ID, nil
 }
 
-func (u *userRepo) FetchByUid(ctx context.Context, uid int64) (user *biz.User, err error) {
+func (u *userRepo) FetchByUid(ctx context.Context, uid uint32) (user *biz.User, err error) {
 	user = &biz.User{}
 	u.table.WithContext(ctx).First(user, "ID = ?", uid)
 	if user.ID == 0 {
@@ -48,8 +48,8 @@ func (u *userRepo) FetchByUid(ctx context.Context, uid int64) (user *biz.User, e
 	return user, nil
 }
 
-func (u *userRepo) FetchByUidList(ctx context.Context, uidList []int64) (user map[int64]*biz.User, err error) {
-	result := make(map[int64]*biz.User, len(uidList))
+func (u *userRepo) FetchByUidList(ctx context.Context, uidList []uint32) (user map[uint32]*biz.User, err error) {
+	result := make(map[uint32]*biz.User, len(uidList))
 	uidInfoList := make([]*biz.User, 0, len(uidList))
 	if len(uidList) == 0 {
 		return result, nil

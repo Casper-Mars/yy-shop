@@ -48,3 +48,12 @@ func (i *itemRepo) FetchByIds(ctx context.Context, ids ...uint32) (itemInfoList 
 	}
 	return
 }
+
+func (i *itemRepo) Save(ctx context.Context, item *biz.ItemInfo) (uint32, error) {
+	err := i.table.WithContext(ctx).Create(item).Error
+	if err != nil {
+		i.log.Errorf("Save failed to Create, err:%v", err)
+		return 0, err
+	}
+	return item.ItemId, nil
+}

@@ -102,7 +102,7 @@ components:
             properties:
                 id:
                     type: integer
-                    format: int64
+                    format: uint32
                 username:
                     type: string
                 avatar:
@@ -122,7 +122,7 @@ components:
             properties:
                 id:
                     type: integer
-                    format: int64
+                    format: uint32
                 name:
                     type: string
                 cover:
@@ -136,7 +136,7 @@ components:
             properties:
                 id:
                     type: integer
-                    format: int64
+                    format: uint32
                 nickName:
                     type: string
                 avatar:
@@ -200,13 +200,13 @@ components:
                         type: string
                 uid:
                     type: integer
-                    format: int64
+                    format: uint32
         api.v1.UploadResp:
             type: object
             properties:
                 id:
                     type: integer
-                    format: int64
+                    format: uint32
 tags:
     - name: Account
     - name: Product

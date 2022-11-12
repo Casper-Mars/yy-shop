@@ -37,21 +37,18 @@ message SearchResp {
     string page_token = 2; // 下次分页请求带上token， token为空，分页获取完成
 }
 
-
-
 message UploadReq {
     string name = 1; // 商品名称
     string desc = 2; // 商品描述
     string price = 3; // 商品价格
     string cover = 4; // 商品封面图片
     repeated string images = 5; // 商品图片
-    int64 uid = 6; // 用户id
+    uint32 uid = 6; // 用户id
 }
 
 message UploadResp {
-    int64 id = 1; // 商品id
+    uint32 id = 1; // 商品id
 }
-
 
 message SearchItemRequest {
     string name = 1;
@@ -67,13 +64,13 @@ message SearchItemResponse {
 message Item {
     // 商品所属用户信息
     message UserInfo {
-        int64 id = 1;       // 卖家id
+        uint32 id = 1;       // 卖家id
         string nick_name = 2; // 卖家昵称
         string avatar = 3;   // 卖家头像
     }
     // 商品信息
     message ItemInfo {
-        int64 id = 1;  // 商品id
+        uint32 id = 1;  // 商品id
         string name = 2;  // 商品名称
         string cover = 3;  // 商品图片
         float price = 4;      // 商品价格

@@ -38,7 +38,7 @@ func NewLoginRequest(username, password string) (*LoginRequest, error) {
 }
 
 type User struct {
-	ID       int64  // 用户ID
+	ID       uint32 // 用户ID
 	Username string // 用户名
 	Password string // 密码
 	Nickname string // 昵称
@@ -61,11 +61,11 @@ type UserRepo interface {
 	// FetchByUsername 获取指定用户名的用户的信息，如果用户不存在，则返回 ErrUserNotExist。
 	FetchByUsername(ctx context.Context, username string) (user *User, err error)
 	// FetchByUid 获取指定用户名的用户的信息，如果用户不存在，则返回 ErrUserNotExist。
-	FetchByUid(ctx context.Context, uid int64) (user *User, err error)
+	FetchByUid(ctx context.Context, uid uint32) (user *User, err error)
 	// FetchByUidList 获取指定用户名的用户的信息，如果用户不存在，则返回空。
-	FetchByUidList(ctx context.Context, uidList []int64) (user map[int64]*User, err error)
+	FetchByUidList(ctx context.Context, uidList []uint32) (user map[uint32]*User, err error)
 	// Save 保存用户信息并返回用户的id。
-	Save(ctx context.Context, user *User) (id int64, err error)
+	Save(ctx context.Context, user *User) (id uint32, err error)
 }
 
 type AccountUseCase struct {
@@ -137,7 +137,7 @@ func (a *AccountUseCase) Login(ctx context.Context, loginReq *LoginRequest) (tok
 	return token, nil
 }
 
-func (a *AccountUseCase) UserInfo(ctx context.Context, uid int64) (user *User, err error) {
+func (a *AccountUseCase) UserInfo(ctx context.Context, uid uint32) (user *User, err error) {
 	user, err = a.userRepo.FetchByUid(ctx, uid)
 	if err != nil {
 		if errors.Is(err, ErrUserNotExist) {

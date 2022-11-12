@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	k_errors "github.com/go-kratos/kratos/v2/errors"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	v1 "yy-shop/api/v1"
 	"yy-shop/internal/biz"
 
@@ -13,7 +15,7 @@ import (
 
 type itemService struct {
 	log           *log.Helper
-	productMgr    *biz.ProductMgr
+	productMgr    *biz.ProductUseCase
 	searchService *biz.EsSearchUseCase
 }
 
@@ -38,7 +40,7 @@ func (p *pageToken) string() string {
 	return base64.StdEncoding.EncodeToString(jsonByte)
 }
 
-func NewProductServer(logger log.Logger, searchService *biz.EsSearchUseCase, productMgr *biz.ProductMgr) v1.ProductServer {
+func NewProductServer(logger log.Logger, searchService *biz.EsSearchUseCase, productMgr *biz.ProductUseCase) v1.ProductServer {
 	return &itemService{
 		log:           log.NewHelper(logger),
 		productMgr:    productMgr,
@@ -76,8 +78,19 @@ func (a *itemService) SearchItem(ctx context.Context, request *v1.SearchItemRequ
 }
 
 func (a *itemService) Upload(ctx context.Context, req *v1.UploadReq) (*v1.UploadResp, error) {
-	//TODO implement me
-	panic("implement me")
+	// 获取用户
+	claims, _ := jwt.FromContext(ctx)
+	uploadReq, err := biz.NewProductUploadReq(claims.(*biz.MyJwtClaims).Uid, req.GetName(), req.GetPrice(), req.GetCover(), req.GetImages())
+	if err != nil {
+		return nil, k_errors.New(200, "上传失败", err.Error())
+	}
+	upload, err := a.productMgr.Upload(ctx, uploadReq)
+	if err != nil {
+		return nil, k_errors.New(200, "上传失败", err.Error())
+	}
+	return &v1.UploadResp{
+		Id: upload,
+	}, nil
 }
 
 func (a *itemService) Search(ctx context.Context, req *v1.SearchReq) (*v1.SearchResp, error) {

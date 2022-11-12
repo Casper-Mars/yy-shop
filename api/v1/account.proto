@@ -35,7 +35,7 @@ message InfoReq {
 }
 
 message InfoResp {
-    int64 id = 1; // 用户id
+    uint32 id = 1; // 用户id
     string username = 2; // 用户名
     string avatar = 3; // 头像
 }
