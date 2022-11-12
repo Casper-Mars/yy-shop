@@ -18,9 +18,9 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type AccountHTTPServer interface {
-	Info(context.Context, *InfoRequest) (*InfoResponse, error)
-	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	Info(context.Context, *InfoReq) (*InfoResp, error)
+	Login(context.Context, *LoginReq) (*LoginResp, error)
+	Register(context.Context, *RegisterReq) (*RegisterResp, error)
 }
 
 func RegisterAccountHTTPServer(s *http.Server, srv AccountHTTPServer) {
@@ -32,45 +32,45 @@ func RegisterAccountHTTPServer(s *http.Server, srv AccountHTTPServer) {
 
 func _Account_Login0_HTTP_Handler(srv AccountHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in LoginRequest
+		var in LoginReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, "/api.v1.Account/Login")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Login(ctx, req.(*LoginRequest))
+			return srv.Login(ctx, req.(*LoginReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*LoginResponse)
+		reply := out.(*LoginResp)
 		return ctx.Result(200, reply)
 	}
 }
 
 func _Account_Register0_HTTP_Handler(srv AccountHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in RegisterRequest
+		var in RegisterReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, "/api.v1.Account/Register")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Register(ctx, req.(*RegisterRequest))
+			return srv.Register(ctx, req.(*RegisterReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*RegisterResponse)
+		reply := out.(*RegisterResp)
 		return ctx.Result(200, reply)
 	}
 }
 
 func _Account_Info0_HTTP_Handler(srv AccountHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in InfoRequest
+		var in InfoReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -79,21 +79,21 @@ func _Account_Info0_HTTP_Handler(srv AccountHTTPServer) func(ctx http.Context) e
 		}
 		http.SetOperation(ctx, "/api.v1.Account/Info")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Info(ctx, req.(*InfoRequest))
+			return srv.Info(ctx, req.(*InfoReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*InfoResponse)
+		reply := out.(*InfoResp)
 		return ctx.Result(200, reply)
 	}
 }
 
 type AccountHTTPClient interface {
-	Info(ctx context.Context, req *InfoRequest, opts ...http.CallOption) (rsp *InfoResponse, err error)
-	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginResponse, err error)
-	Register(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *RegisterResponse, err error)
+	Info(ctx context.Context, req *InfoReq, opts ...http.CallOption) (rsp *InfoResp, err error)
+	Login(ctx context.Context, req *LoginReq, opts ...http.CallOption) (rsp *LoginResp, err error)
+	Register(ctx context.Context, req *RegisterReq, opts ...http.CallOption) (rsp *RegisterResp, err error)
 }
 
 type AccountHTTPClientImpl struct {
@@ -104,8 +104,8 @@ func NewAccountHTTPClient(client *http.Client) AccountHTTPClient {
 	return &AccountHTTPClientImpl{client}
 }
 
-func (c *AccountHTTPClientImpl) Info(ctx context.Context, in *InfoRequest, opts ...http.CallOption) (*InfoResponse, error) {
-	var out InfoResponse
+func (c *AccountHTTPClientImpl) Info(ctx context.Context, in *InfoReq, opts ...http.CallOption) (*InfoResp, error) {
+	var out InfoResp
 	pattern := "/account/info/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/api.v1.Account/Info"))
@@ -117,8 +117,8 @@ func (c *AccountHTTPClientImpl) Info(ctx context.Context, in *InfoRequest, opts 
 	return &out, err
 }
 
-func (c *AccountHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*LoginResponse, error) {
-	var out LoginResponse
+func (c *AccountHTTPClientImpl) Login(ctx context.Context, in *LoginReq, opts ...http.CallOption) (*LoginResp, error) {
+	var out LoginResp
 	pattern := "/account/login"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/api.v1.Account/Login"))
@@ -130,8 +130,8 @@ func (c *AccountHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, opt
 	return &out, err
 }
 
-func (c *AccountHTTPClientImpl) Register(ctx context.Context, in *RegisterRequest, opts ...http.CallOption) (*RegisterResponse, error) {
-	var out RegisterResponse
+func (c *AccountHTTPClientImpl) Register(ctx context.Context, in *RegisterReq, opts ...http.CallOption) (*RegisterResp, error) {
+	var out RegisterResp
 	pattern := "/account/register"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/api.v1.Account/Register"))

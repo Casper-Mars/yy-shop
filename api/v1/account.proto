@@ -9,21 +9,21 @@ option go_package = "yy-shop/api/v1;v1";
 
 service Account {
     // 登陆
-    rpc Login (LoginRequest) returns (LoginResponse) {
+    rpc Login (LoginReq) returns (LoginResp) {
         option (google.api.http) = {
             post: "/account/login"
             body: "*"
         };
     }
     // 注册
-    rpc Register (RegisterRequest) returns (RegisterResponse) {
+    rpc Register (RegisterReq) returns (RegisterResp) {
         option (google.api.http) = {
             post: "/account/register"
             body: "*"
         };
     }
     // 获取用户信息
-    rpc Info (InfoRequest) returns (InfoResponse) {
+    rpc Info (InfoReq) returns (InfoResp) {
         option (google.api.http) = {
             get: "/account/info/{id}"
         };
@@ -31,30 +31,30 @@ service Account {
 }
 
 
-message InfoRequest {
+message InfoReq {
     int64 id = 1; // 用户id
 }
 
-message InfoResponse {
+message InfoResp {
     int64 id = 1; // 用户id
     string username = 2; // 用户名
     string avatar = 3; // 头像
 }
 
-message LoginRequest {
+message LoginReq {
     string phone = 1;
     string password = 2;
 }
 
-message LoginResponse {
+message LoginResp {
     string token = 1;
 }
 
-message RegisterRequest {
+message RegisterReq {
     string phone = 1;
     string password = 2;
 }
 
-message RegisterResponse {
+message RegisterResp {
 }
 

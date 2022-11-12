@@ -19,11 +19,11 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccountClient interface {
 	// 登陆
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 	// 注册
-	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error)
 	// 获取用户信息
-	Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error)
+	Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error)
 }
 
 type accountClient struct {
@@ -34,8 +34,8 @@ func NewAccountClient(cc grpc.ClientConnInterface) AccountClient {
 	return &accountClient{cc}
 }
 
-func (c *accountClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
-	out := new(LoginResponse)
+func (c *accountClient) Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error) {
+	out := new(LoginResp)
 	err := c.cc.Invoke(ctx, "/api.v1.Account/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func (c *accountClient) Login(ctx context.Context, in *LoginRequest, opts ...grp
 	return out, nil
 }
 
-func (c *accountClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
-	out := new(RegisterResponse)
+func (c *accountClient) Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error) {
+	out := new(RegisterResp)
 	err := c.cc.Invoke(ctx, "/api.v1.Account/Register", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,8 +52,8 @@ func (c *accountClient) Register(ctx context.Context, in *RegisterRequest, opts 
 	return out, nil
 }
 
-func (c *accountClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error) {
-	out := new(InfoResponse)
+func (c *accountClient) Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error) {
+	out := new(InfoResp)
 	err := c.cc.Invoke(ctx, "/api.v1.Account/Info", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -66,24 +66,24 @@ func (c *accountClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.
 // for forward compatibility
 type AccountServer interface {
 	// 登陆
-	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	Login(context.Context, *LoginReq) (*LoginResp, error)
 	// 注册
-	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	Register(context.Context, *RegisterReq) (*RegisterResp, error)
 	// 获取用户信息
-	Info(context.Context, *InfoRequest) (*InfoResponse, error)
+	Info(context.Context, *InfoReq) (*InfoResp, error)
 }
 
 // UnimplementedAccountServer should be embedded to have forward compatible implementations.
 type UnimplementedAccountServer struct {
 }
 
-func (UnimplementedAccountServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+func (UnimplementedAccountServer) Login(context.Context, *LoginReq) (*LoginResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAccountServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
+func (UnimplementedAccountServer) Register(context.Context, *RegisterReq) (*RegisterResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedAccountServer) Info(context.Context, *InfoRequest) (*InfoResponse, error) {
+func (UnimplementedAccountServer) Info(context.Context, *InfoReq) (*InfoResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
 
@@ -99,7 +99,7 @@ func RegisterAccountServer(s grpc.ServiceRegistrar, srv AccountServer) {
 }
 
 func _Account_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LoginRequest)
+	in := new(LoginReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -111,13 +111,13 @@ func _Account_Login_Handler(srv interface{}, ctx context.Context, dec func(inter
 		FullMethod: "/api.v1.Account/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Login(ctx, req.(*LoginRequest))
+		return srv.(AccountServer).Login(ctx, req.(*LoginReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterRequest)
+	in := new(RegisterReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -129,13 +129,13 @@ func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/api.v1.Account/Register",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Register(ctx, req.(*RegisterRequest))
+		return srv.(AccountServer).Register(ctx, req.(*RegisterReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Account_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InfoRequest)
+	in := new(InfoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func _Account_Info_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/api.v1.Account/Info",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Info(ctx, req.(*InfoRequest))
+		return srv.(AccountServer).Info(ctx, req.(*InfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -25,7 +25,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.v1.InfoResponse'
+                                $ref: '#/components/schemas/api.v1.InfoResp'
     /account/login:
         post:
             tags:
@@ -36,7 +36,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.v1.LoginRequest'
+                            $ref: '#/components/schemas/api.v1.LoginReq'
                 required: true
             responses:
                 "200":
@@ -44,7 +44,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.v1.LoginResponse'
+                                $ref: '#/components/schemas/api.v1.LoginResp'
     /account/register:
         post:
             tags:
@@ -55,7 +55,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.v1.RegisterRequest'
+                            $ref: '#/components/schemas/api.v1.RegisterReq'
                 required: true
             responses:
                 "200":
@@ -63,7 +63,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.v1.RegisterResponse'
+                                $ref: '#/components/schemas/api.v1.RegisterResp'
     /product/search:
         post:
             tags:
@@ -104,7 +104,7 @@ paths:
                                 $ref: '#/components/schemas/api.v1.UploadResp'
 components:
     schemas:
-        api.v1.InfoResponse:
+        api.v1.InfoResp:
             type: object
             properties:
                 id:
@@ -149,26 +149,26 @@ components:
                 avatar:
                     type: string
             description: 商品所属用户信息
-        api.v1.LoginRequest:
+        api.v1.LoginReq:
             type: object
             properties:
                 phone:
                     type: string
                 password:
                     type: string
-        api.v1.LoginResponse:
+        api.v1.LoginResp:
             type: object
             properties:
                 token:
                     type: string
-        api.v1.RegisterRequest:
+        api.v1.RegisterReq:
             type: object
             properties:
                 phone:
                     type: string
                 password:
                     type: string
-        api.v1.RegisterResponse:
+        api.v1.RegisterResp:
             type: object
             properties: {}
         api.v1.SearchReq:
