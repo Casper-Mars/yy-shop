@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding"
 	"encoding/base64"
 	"encoding/json"
 )
@@ -46,12 +47,15 @@ func (e *EsSearchUseCase) SearchProduct(ctx context.Context, query map[string]in
 
 type EsSearchRepo interface {
 	Search(ctx context.Context, index string, query map[string]interface{}) (*Result, error)
+	Update(ctx context.Context, index, id string, content map[string]interface{}) error
+	Create(ctx context.Context, index, id string, content map[string]interface{}) error
+	Upsert(ctx context.Context, index, id string, content interface{}) error
 }
 
 type EsSearchCondition struct {
-	Query map[string]interface{}
-	Index string
-	Sort  map[string]interface{}
+	Index   string                   // 索引
+	Keyword string                   // 关键字
+	Query   encoding.BinaryMarshaler // 查询条件
 }
 
 type PageToken struct {

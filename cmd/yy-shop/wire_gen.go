@@ -31,7 +31,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, bootstrap *conf.Boots
 	esSearchRepo := data.NewSearchRepo(logger, dataData)
 	esSearchUseCase := biz.NewEsSearchUseCase(esSearchRepo)
 	itemRepo := data.NewItemRepo(dataData, logger)
-	productUseCase := biz.NewProductMgr(logger, userRepo, itemRepo)
+	productUseCase := biz.NewProductMgr(logger, userRepo, itemRepo, esSearchRepo)
 	productServer := service.NewProductServer(logger, esSearchUseCase, productUseCase)
 	grpcServer := server.NewGRPCServer(bootstrap, logger, accountServer, productServer)
 	httpServer := server.NewHTTPServer(bootstrap, accountServer, productServer, logger)

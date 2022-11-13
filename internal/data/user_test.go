@@ -62,7 +62,7 @@ func Test_userRepo_FetchByUidList(t *testing.T) {
 	}
 	defer f()
 	repo := NewUserRepo(data, logger)
-	list, err := repo.FetchByUidList(context.Background(), []int64{1, 2, 3})
+	list, err := repo.FetchByUidList(context.Background(), []uint32{1, 2, 3})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -8,6 +8,11 @@ import (
 	"yy-shop/internal/biz"
 )
 
+type esUpsertBody struct {
+	Doc    interface{} `json:"doc"`
+	Upsert interface{} `json:"upsert"`
+}
+
 type searchRepo struct {
 	data *Data
 	log  *log.Helper
@@ -57,4 +62,78 @@ func (s *searchRepo) Search(ctx context.Context, index string, query map[string]
 		result.List = append(result.List, hit)
 	}
 	return result, nil
+}
+
+func (s *searchRepo) Update(ctx context.Context, index, id string, content map[string]interface{}) error {
+	var buf bytes.Buffer
+	doc := map[string]interface{}{
+		"doc": content,
+	}
+	err := json.NewEncoder(&buf).Encode(doc)
+	if err != nil {
+		s.log.Errorf("json encode error: %v", err)
+		return err
+	}
+	resp, err := s.data.es.Update(
+		index,
+		id,
+		&buf,
+		s.data.es.Update.WithRefresh("true"),
+	)
+	if err != nil {
+		s.log.Errorf("create error: %v", err)
+		return err
+	}
+	defer resp.Body.Close()
+	s.log.Debug(resp.String())
+	return nil
+}
+
+func (s *searchRepo) Create(ctx context.Context, index, id string, content map[string]interface{}) error {
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(content)
+	if err != nil {
+		s.log.Errorf("json encode error: %v", err)
+		return err
+	}
+	resp, err := s.data.es.Create(
+		index,
+		id,
+		&buf,
+		s.data.es.Create.WithRefresh("true"),
+	)
+	if err != nil {
+		s.log.Errorf("create error: %v", err)
+		return err
+	}
+	defer resp.Body.Close()
+	s.log.Debug(resp.StatusCode)
+	s.log.Debug(resp.String())
+	return nil
+}
+
+func (s *searchRepo) Upsert(ctx context.Context, index, id string, content interface{}) error {
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(esUpsertBody{
+		Doc:    content,
+		Upsert: content,
+	})
+	if err != nil {
+		s.log.Errorf("json encode error: %v", err)
+		return err
+	}
+	resp, err := s.data.es.Update(
+		index,
+		id,
+		&buf,
+		s.data.es.Update.WithRefresh("true"),
+	)
+	if err != nil {
+		s.log.Errorf("create error: %v", err)
+		return err
+	}
+	defer resp.Body.Close()
+	s.log.Debug(resp.StatusCode)
+	s.log.Debug(resp.String())
+	return nil
 }

@@ -20,6 +20,13 @@ type Seller struct {
 	NickName string // 卖家昵称
 }
 
+type ProductIndex struct {
+	ID       uint32  `json:"id"`
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	SellerID uint32  `json:"seller_id"`
+}
+
 type Product struct {
 	ItemId    uint32   // 商品ID
 	ItemName  string   // 商品名称
@@ -103,6 +110,9 @@ func NewProductUploadReq(
 	return p, nil
 }
 
+type ProductSearchReq struct {
+}
+
 type ProductUseCase struct {
 	userRepo     UserRepo
 	itemRepo     ItemRepo
@@ -111,11 +121,12 @@ type ProductUseCase struct {
 }
 
 //NewProductMgr 创建一个AccountUseCase，依赖作为参数传入
-func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo) *ProductUseCase {
+func NewProductMgr(logger log.Logger, userRepo UserRepo, producctRepo ItemRepo, esRepo EsSearchRepo) *ProductUseCase {
 	return &ProductUseCase{
-		userRepo: userRepo,
-		itemRepo: producctRepo,
-		logger:   log.NewHelper(logger),
+		userRepo:     userRepo,
+		itemRepo:     producctRepo,
+		esSearchRepo: esRepo,
+		logger:       log.NewHelper(logger),
 	}
 }
 
@@ -129,6 +140,15 @@ func (p *ProductUseCase) Upload(ctx context.Context, req *ProductUploadReq) (uin
 	})
 	if err != nil {
 		return 0, fmt.Errorf("保存商品信息失败: %w", err)
+	}
+	err = p.esSearchRepo.Upsert(ctx, "product", strconv.FormatUint(uint64(id), 10), &ProductIndex{
+		ID:       id,
+		Name:     req.itemName,
+		Price:    req.price,
+		SellerID: req.userId,
+	})
+	if err != nil {
+		p.logger.Errorf("保存商品信息到es失败: %s", err)
 	}
 	return id, nil
 }

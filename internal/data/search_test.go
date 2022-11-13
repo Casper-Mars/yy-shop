@@ -66,3 +66,82 @@ func Test_searchRepo_SearchByPage(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func Test_searchRepo_Upsert(t *testing.T) {
+	logger := log.With(log.NewStdLogger(os.Stdout))
+	data, f, err := NewData(&conf.Data{
+		Database: &conf.Data_Database{
+			Source: "root:root@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local",
+		},
+		Elasticsearch: &conf.Data_Elasticsearch{
+			Addr:    []string{"http://localhost:9200"},
+			Timeout: durationpb.New(2 * time.Second),
+		},
+	}, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f()
+
+	repo := NewSearchRepo(logger, data)
+	err = repo.Create(context.Background(), "product", "2000", map[string]interface{}{
+		"name":  "ma po dou fu",
+		"price": 121,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func Test_searchRepo_Update(t *testing.T) {
+	logger := log.With(log.NewStdLogger(os.Stdout))
+	data, f, err := NewData(&conf.Data{
+		Database: &conf.Data_Database{
+			Source: "root:root@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local",
+		},
+		Elasticsearch: &conf.Data_Elasticsearch{
+			Addr:    []string{"http://localhost:9200"},
+			Timeout: durationpb.New(2 * time.Second),
+		},
+	}, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f()
+
+	repo := NewSearchRepo(logger, data)
+	err = repo.Update(context.Background(), "product", "2000", map[string]interface{}{
+		"name":  "ma po dou fu",
+		"price": 121,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func Test_searchRepo_Upsert1(t *testing.T) {
+	logger := log.With(log.NewStdLogger(os.Stdout))
+	data, f, err := NewData(&conf.Data{
+		Database: &conf.Data_Database{
+			Source: "root:root@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local",
+		},
+		Elasticsearch: &conf.Data_Elasticsearch{
+			Addr:    []string{"http://localhost:9200"},
+			Timeout: durationpb.New(2 * time.Second),
+		},
+	}, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f()
+
+	repo := NewSearchRepo(logger, data)
+	err = repo.Upsert(context.Background(), "product", "2001", map[string]interface{}{
+		"name":  "shu yi xiao ",
+		"price": 131,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+}
